@@ -1,9 +1,59 @@
 {
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
-    "parameters": {},
+    "parameters": {
+        "tags" : {
+            "type" : "object",
+            "metadata" : {
+                "description" : "Used to tag all resources created by this template"
+            }
+        },
+        "prefix" : {
+            "type" : "string",
+            "metadata" : {
+                "description" : "Used to prefix all resources created by this template"
+            }
+        }
+    },
     "functions": [],
-    "variables": {},
-    "resources": [],
+    "variables": {
+        "storageAccountName": "[concat(parameters('prefix'),uniqueString(resourceGroup().id))]",
+        "amsAccountName": "[concat(parameters('prefix'),uniqueString(resourceGroup().id))]",
+        "location" : "[resourceGroup().location]"
+    },
+    "resources": [
+        {
+            "name": "[variables('storageAccountName')]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2019-06-01",
+            "tags": "[parameters('tags')]",
+            "location": "[resourceGroup().location]",
+            "kind": "StorageV2",
+            "sku": {
+                "name": "Standard_LRS"                
+            },
+            "properties" : {
+                "accessTier" : "Hot"
+            }
+        },
+        {
+            "type": "Microsoft.Media/mediaServices",
+            "apiVersion": "2018-07-01",
+            "name": "[variables('amsAccountName')]",
+            "location": "[variables('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+            ],
+            "properties": {
+                "storageAccounts": [
+                    {
+                        "id": "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
+                        "type": "Primary"
+                    }
+                ]
+            },
+            "tags": "[parameters('tags')]"
+        }        
+    ],
     "outputs": {}
 }

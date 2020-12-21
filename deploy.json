@@ -2,32 +2,51 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "resourceGroup" : {
+        "namePrefix" : {
             "type" : "string",
+            "defaultValue" : "va",
+            "minLength" : 2,
+            "maxLength" : 10,
             "metadata" : {
-                "description" : "Provide name for the resource group to be created for Azure resources."
+                "description" : "Used to qualify the names of all resources created by this template"
             }
         },
         "resourceTags" : {
             "type" : "object",
             "defaultValue" : {
-                "sample" : "video-analytics"
+                "sample" : "video-analytics"      
+            },
+            "metadata" : {
+                "description" : "Used to tag all resources created by this template"
             }
+
         }
     },
     "functions": [],
     "variables": {
-        "location" : "[deployment().location]",
-        "defaultResourceGroup" : "[parameters('resourceGroup')]"
+
     },
     "resources": [
-        {
-            "name": "[variables('defaultResourceGroup')]",
-            "type": "Microsoft.Resources/resourceGroups",
-            "apiVersion": "2020-06-01",
-            "location": "[variables('location')]",
-            "tags": "[parameters('resourceTags')]"            
-        }        
+   {
+       "name": "vaDeployment",
+       "type": "Microsoft.Resources/deployments",
+       "apiVersion": "2019-10-01",
+       "properties": {
+           "mode": "Incremental",
+           "templateLink": {
+               "uri": "https://raw.githubusercontent.com/gadamilan/video-analytics-arm/main/va-deploy.json",
+               "contentVersion": "1.0.0.0"
+           },
+           "parameters": {
+               "tags" : { 
+                   "value" : "[parameters('resourceTags')]"
+               },
+               "prefix" : {
+                   "value" : "[parameters('namePrefix')]"
+               }
+           }
+       }
+   }
       
     ],
     "outputs": {}
