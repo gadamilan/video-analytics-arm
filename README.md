@@ -1,1 +1,5 @@
-# video-analytics-arm
+# Video Analytics ARM Template
+
+ARM template to get started with Video Analytics in Azure
+
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fgadamilan%2Fva-arm%2Fmain%2Fdeploy.json%26api-version%3D6.0)

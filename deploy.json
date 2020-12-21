@@ -1,0 +1,34 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "resourceGroup" : {
+            "type" : "string",
+            "metadata" : {
+                "description" : "Provide name for the resource group to be created for Azure resources."
+            }
+        },
+        "resourceTags" : {
+            "type" : "object",
+            "defaultValue" : {
+                "sample" : "video-analytics"
+            }
+        }
+    },
+    "functions": [],
+    "variables": {
+        "location" : "[deployment().location]",
+        "defaultResourceGroup" : "[parameters('resourceGroup')]"
+    },
+    "resources": [
+        {
+            "name": "[variables('defaultResourceGroup')]",
+            "type": "Microsoft.Resources/resourceGroups",
+            "apiVersion": "2020-06-01",
+            "location": "[variables('location')]",
+            "tags": "[parameters('resourceTags')]"            
+        }        
+      
+    ],
+    "outputs": {}
+}
