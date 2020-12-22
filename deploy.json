@@ -8,8 +8,8 @@
             "minLength" : 2,
             "maxLength" : 10,
             "metadata" : {
-                "description" : "Used to qualify the names of all resources created by this template"
-            }
+                "description" : "Used to qualify the names of all resources created by this template"                
+            }            
         },
         "resourceTags" : {
             "type" : "object",
@@ -19,7 +19,6 @@
             "metadata" : {
                 "description" : "Used to tag all resources created by this template"
             }
-
         }
     },
     "functions": [],
