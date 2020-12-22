@@ -14,7 +14,7 @@
         "resourceTags" : {
             "type" : "object",
             "defaultValue" : {
-                "sample" : "video-analytics"      
+                "Author" : "VA Sample"      
             },
             "metadata" : {
                 "description" : "Used to tag all resources created by this template"
