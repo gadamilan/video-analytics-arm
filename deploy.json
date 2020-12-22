@@ -52,5 +52,10 @@
             }
         }      
     ],
-    "outputs": {}
+    "outputs": {
+        "amsAccountName" : {
+            "type" : "string",
+            "value" : "[variables('amsAccountName')]"
+        }
+    }
 }
