@@ -24,30 +24,33 @@
     },
     "functions": [],
     "variables": {
-
+        "storageAccountName": "[concat(parameters('namePrefix'),uniqueString(resourceGroup().id))]",
+        "amsAccountName": "[concat(parameters('namePrefix'),uniqueString(resourceGroup().id))]"        
     },
     "resources": [
-   {
-       "name": "vaDeployment",
-       "type": "Microsoft.Resources/deployments",
-       "apiVersion": "2019-10-01",
-       "properties": {
-           "mode": "Incremental",
-           "templateLink": {
-               "uri": "https://raw.githubusercontent.com/gadamilan/video-analytics-arm/main/va-deploy.json",
-               "contentVersion": "1.0.0.0"
-           },
-           "parameters": {
-               "tags" : { 
-                   "value" : "[parameters('resourceTags')]"
-               },
-               "prefix" : {
-                   "value" : "[parameters('namePrefix')]"
-               }
-           }
-       }
-   }
-      
+        {
+            "name": "vaDeployment",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/gadamilan/video-analytics-arm/main/va-deploy.json",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "tags" : { 
+                        "value" : "[parameters('resourceTags')]"
+                    },
+                    "storageAccountName" : {
+                        "value" : "[variables('storageAccountName')]"
+                    },
+                    "amsAccountName" : {
+                        "value" : "[variables('amsAccountName')]"
+                    }
+                }
+            }
+        }      
     ],
     "outputs": {}
 }
