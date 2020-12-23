@@ -2,6 +2,7 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+
         "namePrefix" : {
             "type" : "string",
             "defaultValue" : "va",
@@ -19,16 +20,41 @@
             "metadata" : {
                 "description" : "Used to tag all resources created by this template"
             }
+        },
+        "useExistingMediaServicesAccount" : {
+            "type" : "string",
+            "allowedValues" : [
+                "Yes",
+                "No"
+            ],
+            "defaultValue" : "No",
+            "metadata" : {
+                "description" : "Select 'Yes' if you would like to use an existing account. If you select 'No', a new account will be created in the above resource group"
+            }
+        },
+        "existingMediaServicesResourceGroup" : {
+            "type" : "string",
+            "metadata" : {
+                "description" : "Provide name of resource group of existing Media Services Account you want to use"
+            }
+        },
+        "existingMediaServicesAccountName" : {
+            "type" : "string",
+            "metadata" : {
+                "description" : "Provide name of existing Media Services Account you want to use"
+            }
         }
     },
     "functions": [],
     "variables": {
         "storageAccountName": "[concat(parameters('namePrefix'),uniqueString(resourceGroup().id))]",
-        "amsAccountName": "[concat(parameters('namePrefix'),uniqueString(resourceGroup().id))]"        
+        "amsResourceGroup" : "[if(equals(parameters('useExistingMediaServicesAccount'), 'Yes'), parameters('existingMediaServicesResourceGroup'), resourceGroup().name)]",
+        "amsAccountName": "[if(equals(parameters('useExistingMediaServicesAccount'), 'Yes'), parameters('existingMediaServicesAccountName'), concat(parameters('namePrefix'), uniqueString(resourceGroup().id)))]"        
     },
     "resources": [
         {
-            "name": "vaDeployment",
+            "condition" : "[equals(parameters('useExistingMediaServicesAccount'), 'No')]",
+            "name": "amsDeployment",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "properties": {
