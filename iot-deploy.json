@@ -1,9 +1,59 @@
 {
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
-    "parameters": {},
+    "parameters": {
+        "tags" : {
+            "type" : "object",
+            "metadata" : {
+                "description" : "Used to tag all resources created by this template"
+            }
+        },
+        "iotHubName" : {
+            "type" : "string",
+            "metadata" : {
+                "description" : "Name of IoT Hub"
+            }
+        }
+    },
     "functions": [],
-    "variables": {},
-    "resources": [],
+    "variables": {
+        "location" : "[resourceGroup().location]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Devices/IotHubs",
+            "apiVersion" : "2020-08-01",
+            "tags": "[parameters('tags')]",
+            "name" : "[parameters('iotHubName')]",
+            "location" : "[variables('location')]",
+            "sku" : {
+                "name" : "S1",
+                "tier" : "Standard",
+                "capacity" : 1
+            },
+            "properties": {
+                "ipFilterRules": [],
+                "eventHubEndpoints": {
+                    "events": {
+                        "retentionTimeInDays": 1,
+                        "partitionCount": 4
+                    }
+                },
+                "routing": {
+                    "endpoints": {},
+                    "routes": [],
+                    "fallbackRoute": {
+                        "name": "$fallback",
+                        "source": "DeviceMessages",
+                        "condition": "true",
+                        "endpointNames": [
+                            "events"
+                        ],
+                        "isEnabled": true
+                    }
+                }
+            }            
+        }        
+    ],
     "outputs": {}
 }

@@ -37,14 +37,14 @@
             "metadata" : {
                 "description" : "Provide name of resource group of existing Media Services Account you want to use"
             },
-            "defaultValue" : "[resourceGroup().name]"
+            "defaultValue" : ""
         },
         "existingAMSAccountName" : {
             "type" : "string",
             "metadata" : {
                 "description" : "Provide name of existing Media Services Account you want to use"
             },
-            "defaultValue" : "[concat(parameters('namePrefix'), uniqueString(resourceGroup().id))]"
+            "defaultValue" : ""
         }
     },
     "functions": [],
@@ -56,7 +56,7 @@
     "resources": [
         {
             "condition" : "[equals(parameters('useExistingAMSAccount'), 'No')]",
-            "name": "amsDeployment",
+            "name": "vaDeployment",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "properties": {
@@ -80,6 +80,10 @@
         }      
     ],
     "outputs": {
+        "amsResourceGroup" : {
+            "type" : "string",
+            "value" : "[variables('amsResourceGroup')]"
+        },
         "amsAccountName" : {
             "type" : "string",
             "value" : "[variables('amsAccountName')]"
