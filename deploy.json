@@ -21,7 +21,7 @@
                 "description" : "Used to tag all resources created by this template"
             }
         },
-        "useExistingMediaServicesAccount" : {
+        "useExistingAMSAccount" : {
             "type" : "string",
             "allowedValues" : [
                 "Yes",
@@ -32,28 +32,30 @@
                 "description" : "Select 'Yes' if you would like to use an existing account. If you select 'No', a new account will be created in the above resource group"
             }
         },
-        "existingMediaServicesResourceGroup" : {
+        "existingAMSResourceGroup" : {
             "type" : "string",
             "metadata" : {
                 "description" : "Provide name of resource group of existing Media Services Account you want to use"
-            }
+            },
+            "defaultValue" : "[resourceGroup().name]"
         },
-        "existingMediaServicesAccountName" : {
+        "existingAMSAccountName" : {
             "type" : "string",
             "metadata" : {
                 "description" : "Provide name of existing Media Services Account you want to use"
-            }
+            },
+            "defaultValue" : "[concat(parameters('namePrefix'), uniqueString(resourceGroup().id))]"
         }
     },
     "functions": [],
     "variables": {
         "storageAccountName": "[concat(parameters('namePrefix'),uniqueString(resourceGroup().id))]",
-        "amsResourceGroup" : "[if(equals(parameters('useExistingMediaServicesAccount'), 'Yes'), parameters('existingMediaServicesResourceGroup'), resourceGroup().name)]",
-        "amsAccountName": "[if(equals(parameters('useExistingMediaServicesAccount'), 'Yes'), parameters('existingMediaServicesAccountName'), concat(parameters('namePrefix'), uniqueString(resourceGroup().id)))]"        
+        "amsResourceGroup" : "[if(equals(parameters('useExistingAMSAccount'), 'Yes'), parameters('existingAMSResourceGroup'), resourceGroup().name)]",
+        "amsAccountName": "[if(equals(parameters('useExistingAMSAccount'), 'Yes'), parameters('existingAMSAccountName'), concat(parameters('namePrefix'), uniqueString(resourceGroup().id)))]"        
     },
     "resources": [
         {
-            "condition" : "[equals(parameters('useExistingMediaServicesAccount'), 'No')]",
+            "condition" : "[equals(parameters('useExistingAMSAccount'), 'No')]",
             "name": "amsDeployment",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
