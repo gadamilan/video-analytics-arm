@@ -45,13 +45,40 @@
                 "description" : "Provide name of existing Media Services Account you want to use"
             },
             "defaultValue" : ""
-        }
+        },
+        "useExistingIoTHub" : {
+            "type" : "string",
+            "allowedValues" : [
+                "Yes",
+                "No"
+            ],
+            "defaultValue" : "No",
+            "metadata" : {
+                "description" : "Select 'Yes' if you would like to use an existing IoT Hub. If you select 'No', a new IoT Hub will be created in the above resource group"
+            }
+        },
+        "existingIoTHubResourceGroup" : {
+            "type" : "string",
+            "metadata" : {
+                "description" : "Provide name of resource group of existing IoT Hub you want to use"
+            },
+            "defaultValue" : ""
+        },
+        "existingIoTHubName" : {
+            "type" : "string",
+            "metadata" : {
+                "description" : "Provide name of existing IoT Hub you want to use"
+            },
+            "defaultValue" : ""
+        }        
     },
     "functions": [],
     "variables": {
         "storageAccountName": "[concat(parameters('namePrefix'),uniqueString(resourceGroup().id))]",
         "amsResourceGroup" : "[if(equals(parameters('useExistingAMSAccount'), 'Yes'), parameters('existingAMSResourceGroup'), resourceGroup().name)]",
-        "amsAccountName": "[if(equals(parameters('useExistingAMSAccount'), 'Yes'), parameters('existingAMSAccountName'), concat(parameters('namePrefix'), uniqueString(resourceGroup().id)))]"        
+        "amsAccountName": "[if(equals(parameters('useExistingAMSAccount'), 'Yes'), parameters('existingAMSAccountName'), concat(parameters('namePrefix'), uniqueString(resourceGroup().id)))]",
+        "iotHubResourceGroup" : "[if(equals(parameters('useExistingIoTHub'), 'Yes'), parameters('existingIoTHubResourceGroup'), resourceGroup().name)]",
+        "iotHubName": "[if(equals(parameters('useExistingIoTHub'), 'Yes'), parameters('existingIoTHubName'), concat(parameters('namePrefix'), uniqueString(resourceGroup().id)))]"                  
     },
     "resources": [
         {
@@ -77,6 +104,24 @@
                     }
                 }
             }
+        },
+        {
+            "condition" : "[equals(parameters('useExistingIoTHub'), 'No')]",
+            "name" : "iotDeployment",
+            "type" : "Microsoft.Resources/deployments",
+            "apiVersion" : "2019-10-01",
+            "properties": {
+                "mode" : "Incremental",
+                "templateLink" : {
+                    "uri" : "https://raw.githubusercontent.com/gadamilan/video-analytics-arm/main/iot-deploy.json",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters" : {
+                    "tags" : { 
+                        "value" : "[parameters('resourceTags')]"
+                    }                    
+                }
+            }
         }      
     ],
     "outputs": {
@@ -87,6 +132,14 @@
         "amsAccountName" : {
             "type" : "string",
             "value" : "[variables('amsAccountName')]"
-        }
+        },
+        "iotHubResourceGroup" : {
+            "type" : "string",
+            "value" : "[variables('iotHubResourceGroup')]"
+        },
+        "iotHubName" : {
+            "type" : "string",
+            "value" : "[variables('iotHubName')]"
+        }        
     }
 }
