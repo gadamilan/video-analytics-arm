@@ -22,7 +22,7 @@
     "resources": [
         {
             "type": "Microsoft.Devices/IotHubs",
-            "apiVersion" : "2020-08-01",
+            "apiVersion" : "2020-06-15",
             "tags": "[parameters('tags')]",
             "name" : "[parameters('iotHubName')]",
             "location" : "[variables('location')]",

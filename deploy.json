@@ -119,7 +119,10 @@
                 "parameters" : {
                     "tags" : { 
                         "value" : "[parameters('resourceTags')]"
-                    }                    
+                    },
+                    "iotHubName" : {
+                        "value" : "[variables('iotHubName')]"
+                    }
                 }
             }
         }      
