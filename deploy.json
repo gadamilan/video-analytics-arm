@@ -2,23 +2,7 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "appResourceGroup" : {
-            "type": "string",
-            "minLength" : 3,
-            "maxLength" : 13,
-            "metadata" : {
-                "description" : "Provide name of resource group to create for resources required for app"
-            }
-        },
-        "namePrefix" : {
-            "type" : "string",
-            "defaultValue" : "va",
-            "minLength" : 2,
-            "maxLength" : 10,
-            "metadata" : {
-                "description" : "Used to qualify the names of all resources created by this template"                
-            }            
-        },
+
         "resourceTags" : {
             "type" : "object",
             "defaultValue" : {
@@ -81,19 +65,25 @@
     },
     "functions": [],
     "variables": {
-        "storageAccountName": "[concat(parameters('namePrefix'),uniqueString(subscription().id, parameters('appResourceGroup')))]",
-        "amsResourceGroup" : "[if(equals(parameters('useExistingAMSAccount'), 'Yes'), parameters('existingAMSResourceGroup'), parameters('appResourceGroup'))]",
-        "amsAccountName": "[if(equals(parameters('useExistingAMSAccount'), 'Yes'), parameters('existingAMSAccountName'), concat(parameters('namePrefix'), uniqueString(subscription().id, parameters('appResourceGroup'))))]",
-        "iotHubResourceGroup" : "[if(equals(parameters('useExistingIoTHub'), 'Yes'), parameters('existingIoTHubResourceGroup'), parameters('appResourceGroup'))]",
-        "iotHubName": "[if(equals(parameters('useExistingIoTHub'), 'Yes'), parameters('existingIoTHubName'), concat(parameters('namePrefix'), uniqueString(subscription().id, parameters('appResourceGroup'))))]"                  
+        
+        "storageAccountName": "[concat('vastorage',uniqueString(resourceGroup().id))]",
+        "amsResourceGroup" : "[if(equals(parameters('useExistingAMSAccount'), 'Yes'), parameters('existingAMSResourceGroup'), resourceGroup().name)]",
+        "amsAccountName": "[if(equals(parameters('useExistingAMSAccount'), 'Yes'), parameters('existingAMSAccountName'), concat('vaams', uniqueString(subscription().id, resourceGroup().name)))]",
+        "iotHubResourceGroup" : "[if(equals(parameters('useExistingIoTHub'), 'Yes'), parameters('existingIoTHubResourceGroup'), resourceGroup().name)]",
+        "iotHubName": "[if(equals(parameters('useExistingIoTHub'), 'Yes'), parameters('existingIoTHubName'), concat('vaiothub', uniqueString(resourceGroup().id)))]"                  
     },
     "resources": [
+
         {
             "condition" : "[equals(parameters('useExistingAMSAccount'), 'No')]",
             "name": "vaDeployment",
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2019-10-01",
-            "properties": {
+            "apiVersion": "2019-10-01",      
+            "dependsOn" : [
+                 "[resourceId('Microsoft.Resources/resourceGroups/', variables('amsResourceGroup'))]"
+            ],
+            "resourceGroup" : "[variables('amsResourceGroup')]",                  
+            "properties": {                
                 "mode": "Incremental",
                 "templateLink": {
                     "uri": "https://raw.githubusercontent.com/gadamilan/video-analytics-arm/main/va-deploy.json",
@@ -109,7 +99,7 @@
                     "amsAccountName" : {
                         "value" : "[variables('amsAccountName')]"
                     }
-                }
+                }                
             }
         },
         {
@@ -117,6 +107,10 @@
             "name" : "iotDeployment",
             "type" : "Microsoft.Resources/deployments",
             "apiVersion" : "2019-10-01",
+            "dependsOn" : [
+                 "[resourceId('Microsoft.Resources/resourceGroups/', variables('iotHubResourceGroup'))]"
+            ],
+            "resourceGroup" : "[variables('iotHubResourceGroup')]",
             "properties": {
                 "mode" : "Incremental",
                 "templateLink" : {
@@ -130,7 +124,7 @@
                     "iotHubName" : {
                         "value" : "[variables('iotHubName')]"
                     }
-                }
+                }                
             }
         }      
     ],
