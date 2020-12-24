@@ -37,7 +37,13 @@
             "metadata" : {
                 "description" : "VM Admin password"
             }            
-        }        
+        },
+        "vmCustomData" : {
+            "type": "string",
+            "metadata" : {
+                "description" : "VM Custom data"
+            }
+        }
     },
     "functions": [],
     "variables": {
@@ -159,7 +165,8 @@
                 "osProfile": {
                     "computerName": "[parameters('vmName')]",
                     "adminUsername": "[parameters('vmAdminUserName')]",
-                    "adminPassword": "[parameters('vmAdminPassword')]"
+                    "adminPassword": "[parameters('vmAdminPassword')]",
+                    "customData" : "[base64(parameters('vmCustomData'))]"
                 },
                 "storageProfile": {
                     "imageReference": {

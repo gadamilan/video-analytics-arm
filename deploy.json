@@ -84,12 +84,14 @@
     "functions": [],
     "variables": {
         //"createStorage" : "[if(equals(parameters('useExistingAMSAccount'), 'No'), 'Yes', if(equals(parameters('useExistingEdgeDevice'), 'No'), 'Yes', 'No'))]",
+        "baseUri" : "https://raw.githubusercontent.com/gadamilan/video-analytics-arm/main/",
         "storageAccountName": "[concat('vastore',uniqueString(resourceGroup().id))]",
         "amsResourceGroup" : "[if(equals(parameters('useExistingAMSAccount'), 'Yes'), parameters('existingAMSResourceGroup'), resourceGroup().name)]",
         "amsAccountName": "[if(equals(parameters('useExistingAMSAccount'), 'Yes'), parameters('existingAMSAccountName'), concat('vaams', uniqueString(resourceGroup().id)))]",
         "iotHubResourceGroup" : "[if(equals(parameters('useExistingIoTHub'), 'Yes'), parameters('existingIoTHubResourceGroup'), resourceGroup().name)]",
         "iotHubName": "[if(equals(parameters('useExistingIoTHub'), 'Yes'), parameters('existingIoTHubName'), concat('va-iothub-', uniqueString(resourceGroup().id)))]",
-        "edgeDeviceName" : "[if(equals(parameters('useExistingEdgeDevice'), 'Yes'), parameters('existingEdgeDeviceName'), concat('va-edge-device-', uniqueString(resourceGroup().id)))]"
+        "edgeDeviceName" : "[if(equals(parameters('useExistingEdgeDevice'), 'Yes'), parameters('existingEdgeDeviceName'), concat('va-edge-device-', uniqueString(resourceGroup().id)))]",
+        "vmCustomData" : "[concat('#include\n', variables('baseUri'), 'vm-custom-data.yml')]"
     },
     "resources": [
           {
@@ -119,7 +121,7 @@
             "properties": {                
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/gadamilan/video-analytics-arm/main/va-deploy.json",
+                    "uri": "[concat(variables('baseUri'), 'va-deploy.json')]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
@@ -145,7 +147,7 @@
             "properties": {
                 "mode" : "Incremental",
                 "templateLink" : {
-                    "uri" : "https://raw.githubusercontent.com/gadamilan/video-analytics-arm/main/iot-deploy.json",
+                    "uri": "[concat(variables('baseUri'), 'iot-deploy.json')]",                    
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters" : {
@@ -170,7 +172,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri" : "https://raw.githubusercontent.com/gadamilan/video-analytics-arm/main/device-deploy.json",
+                    "uri": "[concat(variables('baseUri'), 'device-deploy.json')]",                    
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
@@ -191,7 +193,10 @@
                     },
                     "vmAdminPassword" : {
                         "value" : "adminPa$$w0rd"
-                    }                                                            
+                    },
+                    "vmCustomData" : {
+                        "value" : "[variables('vmCustomData')]"
+                    }
                 }
             }
 
