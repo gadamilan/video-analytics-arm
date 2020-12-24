@@ -27,20 +27,6 @@
     },
     "resources": [
         {
-            "name": "[parameters('storageAccountName')]",
-            "type": "Microsoft.Storage/storageAccounts",
-            "apiVersion": "2019-06-01",
-            "tags": "[parameters('tags')]",
-            "location": "[variables('location')]",
-            "kind": "StorageV2",
-            "sku": {
-                "name": "Standard_LRS"                
-            },
-            "properties" : {
-                "accessTier" : "Hot"
-            }
-        },
-        {
             "type": "Microsoft.Media/mediaServices",
             "apiVersion": "2018-07-01",
             "name": "[parameters('amsAccountName')]",

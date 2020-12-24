@@ -50,17 +50,6 @@
     },
     "resources": [
         {
-            "name": "[parameters('storageAccountName')]",
-            "type": "Microsoft.Storage/storageAccounts",
-            "apiVersion": "2019-06-01",
-            "location": "[resourceGroup().location]",
-            "tags": "[parameters('tags')]",                            
-            "sku": {
-                "name": "Standard_LRS"
-            },
-            "kind": "Storage"
-        },
-        {
             "name": "[variables('publicIPName')]",
             "type": "Microsoft.Network/publicIPAddresses",
             "apiVersion": "2019-11-01",

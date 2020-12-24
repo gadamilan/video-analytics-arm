@@ -83,22 +83,38 @@
     },
     "functions": [],
     "variables": {
-        
-        "storageAccountName": "[concat('va-storage-',uniqueString(resourceGroup().id))]",
+        "createStorage" : "[if(equals(parameters('useExistingAMSAccount'), 'No'), 'Yes', if(equals(parameters('useExistingEdgeDevice'), 'No'), 'Yes', 'No'))]",
+        "storageAccountName": "[concat('vastore',uniqueString(resourceGroup().id))]",
         "amsResourceGroup" : "[if(equals(parameters('useExistingAMSAccount'), 'Yes'), parameters('existingAMSResourceGroup'), resourceGroup().name)]",
-        "amsAccountName": "[if(equals(parameters('useExistingAMSAccount'), 'Yes'), parameters('existingAMSAccountName'), concat('va-ams-', uniqueString(resourceGroup().id)))]",
+        "amsAccountName": "[if(equals(parameters('useExistingAMSAccount'), 'Yes'), parameters('existingAMSAccountName'), concat('vaams', uniqueString(resourceGroup().id)))]",
         "iotHubResourceGroup" : "[if(equals(parameters('useExistingIoTHub'), 'Yes'), parameters('existingIoTHubResourceGroup'), resourceGroup().name)]",
         "iotHubName": "[if(equals(parameters('useExistingIoTHub'), 'Yes'), parameters('existingIoTHubName'), concat('va-iothub-', uniqueString(resourceGroup().id)))]",
         "edgeDeviceName" : "[if(equals(parameters('useExistingEdgeDevice'), 'Yes'), parameters('existingEdgeDeviceName'), concat('va-edge-device-', uniqueString(resourceGroup().id)))]"
     },
     "resources": [
-  
+          {
+            "condition" : "[equals(variables('createStorage'), 'Yes')]",
+            "name": "[variables('storageAccountName')]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2019-06-01",
+            "tags": "[parameters('resourceTags')]",
+            "location": "[resourceGroup().location]",
+            "kind": "StorageV2",
+            "sku": {
+                "name": "Standard_LRS"                
+            },
+            "properties" : {
+                "accessTier" : "Hot"
+            }
+        },
         {
             "condition" : "[equals(parameters('useExistingAMSAccount'), 'No')]",
             "name": "vaDeployment",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",      
-
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+            ],
             "resourceGroup" : "[variables('amsResourceGroup')]",                  
             "properties": {                
                 "mode": "Incremental",
@@ -148,10 +164,13 @@
             "type" : "Microsoft.Resources/deployments",
             "apiVersion" : "2019-10-01",
             "resourceGroup" : "[resourceGroup().name]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+            ],            
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri" : "",
+                    "uri" : "https://raw.githubusercontent.com/gadamilan/video-analytics-arm/main/device-deploy.json",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
