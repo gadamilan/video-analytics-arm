@@ -8,10 +8,10 @@
                 "description" : "Used to tag all resources created by this template"
             }
         },
-        "storageAccountName" : {
+        "storageAccountId" : {
             "type" : "string",
             "metadata" : {
-                "description" : "Name of Storage account"
+                "description" : "Storage account Id"
             }
         },
         "amsAccountName" : {
@@ -34,7 +34,7 @@
             "properties": {
                 "storageAccounts": [
                     {
-                        "id": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
+                        "id" : "[parameters('storageAccountId')]",                        
                         "type": "Primary"
                     }
                 ]

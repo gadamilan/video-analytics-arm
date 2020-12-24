@@ -126,8 +126,8 @@
                     "tags" : { 
                         "value" : "[parameters('resourceTags')]"
                     },
-                    "storageAccountName" : {
-                        "value" : "[variables('storageAccountName')]"
+                    "storageAccountId" : {                        
+                        "value" : "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"                        
                     },
                     "amsAccountName" : {
                         "value" : "[variables('amsAccountName')]"
