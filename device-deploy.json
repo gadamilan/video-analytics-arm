@@ -8,10 +8,10 @@
                 "description" : "Used to tag all resources created by this template"
             }
         },
-        "storageAccountName" : {
+        "storageUri" : {
             "type" : "string",
             "metadata" : {
-                "description" : "Name of Storage account"
+                "description" : "URI of Storage account"
             }
         },
         "vmName" : {
@@ -184,7 +184,7 @@
                 "diagnosticsProfile": {
                     "bootDiagnostics": {
                         "enabled": true,
-                        "storageUri": "[resourceId('Microsoft.Storage/storageAccounts/', parameters('storageAccountName')).primaryEndpoints.blob]"
+                        "storageUri" : "[parameters('storageUri')]"                        
                     }
                 }
             }

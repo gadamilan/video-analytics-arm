@@ -165,8 +165,8 @@
             "apiVersion" : "2019-10-01",
             "resourceGroup" : "[resourceGroup().name]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
-            ],            
+                "[variables('storageAccountName')]"
+            ],        
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -177,8 +177,8 @@
                     "tags" : { 
                         "value" : "[parameters('resourceTags')]"
                     },
-                    "storageAccountName" : {
-                        "value" : "[variables('storageAccountName')]"
+                    "storageUri" : {
+                        "value" : "[reference(resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))).primaryEndpoints.blob]"
                     },
                     "vmName" : {
                         "value" : "[variables('edgeDeviceName')]"
