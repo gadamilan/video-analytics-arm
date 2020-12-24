@@ -86,7 +86,7 @@
         
         "storageAccountName": "[concat('vastorage',uniqueString(resourceGroup().id))]",
         "amsResourceGroup" : "[if(equals(parameters('useExistingAMSAccount'), 'Yes'), parameters('existingAMSResourceGroup'), resourceGroup().name)]",
-        "amsAccountName": "[if(equals(parameters('useExistingAMSAccount'), 'Yes'), parameters('existingAMSAccountName'), concat('vaams', uniqueString(resourceGroup().id, resourceGroup().name)))]",
+        "amsAccountName": "[if(equals(parameters('useExistingAMSAccount'), 'Yes'), parameters('existingAMSAccountName'), concat('vaams', uniqueString(resourceGroup().id)))]",
         "iotHubResourceGroup" : "[if(equals(parameters('useExistingIoTHub'), 'Yes'), parameters('existingIoTHubResourceGroup'), resourceGroup().name)]",
         "iotHubName": "[if(equals(parameters('useExistingIoTHub'), 'Yes'), parameters('existingIoTHubName'), concat('vaiothub', uniqueString(resourceGroup().id)))]"                  
     },
