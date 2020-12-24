@@ -61,27 +61,43 @@
                 "description" : "Provide name of existing IoT Hub you want to use"
             },
             "defaultValue" : ""
-        }        
+        },
+        "useExistingEdgeDevice" : {
+            "type" : "string",
+            "allowedValues" : [
+                "Yes",
+                "No"
+            ],
+            "defaultValue" : "No",
+            "metadata" : {
+                "description" : "Select 'Yes' if you would like to use an existing edge device registered with the above existing IoT Hub. If you select 'No', a virtual edge device will be created and registered with the above IoT Hub"
+            }
+        },
+        "existingEdgeDeviceName" : {
+            "type": "string",
+            "metadata": {
+                "description" : "Provide name of existing edge device you want to use"
+            },
+            "defaultValue" : ""
+        }
     },
     "functions": [],
     "variables": {
         
         "storageAccountName": "[concat('vastorage',uniqueString(resourceGroup().id))]",
         "amsResourceGroup" : "[if(equals(parameters('useExistingAMSAccount'), 'Yes'), parameters('existingAMSResourceGroup'), resourceGroup().name)]",
-        "amsAccountName": "[if(equals(parameters('useExistingAMSAccount'), 'Yes'), parameters('existingAMSAccountName'), concat('vaams', uniqueString(subscription().id, resourceGroup().name)))]",
+        "amsAccountName": "[if(equals(parameters('useExistingAMSAccount'), 'Yes'), parameters('existingAMSAccountName'), concat('vaams', uniqueString(resourceGroup().id, resourceGroup().name)))]",
         "iotHubResourceGroup" : "[if(equals(parameters('useExistingIoTHub'), 'Yes'), parameters('existingIoTHubResourceGroup'), resourceGroup().name)]",
         "iotHubName": "[if(equals(parameters('useExistingIoTHub'), 'Yes'), parameters('existingIoTHubName'), concat('vaiothub', uniqueString(resourceGroup().id)))]"                  
     },
     "resources": [
-
+  
         {
             "condition" : "[equals(parameters('useExistingAMSAccount'), 'No')]",
             "name": "vaDeployment",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",      
-            "dependsOn" : [
-                 "[resourceId('Microsoft.Resources/resourceGroups/', variables('amsResourceGroup'))]"
-            ],
+
             "resourceGroup" : "[variables('amsResourceGroup')]",                  
             "properties": {                
                 "mode": "Incremental",
@@ -107,9 +123,7 @@
             "name" : "iotDeployment",
             "type" : "Microsoft.Resources/deployments",
             "apiVersion" : "2019-10-01",
-            "dependsOn" : [
-                 "[resourceId('Microsoft.Resources/resourceGroups/', variables('iotHubResourceGroup'))]"
-            ],
+
             "resourceGroup" : "[variables('iotHubResourceGroup')]",
             "properties": {
                 "mode" : "Incremental",
