@@ -31,9 +31,6 @@
             "apiVersion": "2018-07-01",
             "name": "[parameters('amsAccountName')]",
             "location": "[variables('location')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
-            ],
             "properties": {
                 "storageAccounts": [
                     {
