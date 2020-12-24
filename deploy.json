@@ -2,7 +2,14 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-
+        "appResourceGroup" : {
+            "type": "string",
+            "minLength" : 3,
+            "maxLength" : 13,
+            "metadata" : {
+                "description" : "Provide name of resource group to create for resources required for app"
+            }
+        },
         "namePrefix" : {
             "type" : "string",
             "defaultValue" : "va",
@@ -74,11 +81,11 @@
     },
     "functions": [],
     "variables": {
-        "storageAccountName": "[concat(parameters('namePrefix'),uniqueString(resourceGroup().id))]",
-        "amsResourceGroup" : "[if(equals(parameters('useExistingAMSAccount'), 'Yes'), parameters('existingAMSResourceGroup'), resourceGroup().name)]",
-        "amsAccountName": "[if(equals(parameters('useExistingAMSAccount'), 'Yes'), parameters('existingAMSAccountName'), concat(parameters('namePrefix'), uniqueString(resourceGroup().id)))]",
-        "iotHubResourceGroup" : "[if(equals(parameters('useExistingIoTHub'), 'Yes'), parameters('existingIoTHubResourceGroup'), resourceGroup().name)]",
-        "iotHubName": "[if(equals(parameters('useExistingIoTHub'), 'Yes'), parameters('existingIoTHubName'), concat(parameters('namePrefix'), uniqueString(resourceGroup().id)))]"                  
+        "storageAccountName": "[concat(parameters('namePrefix'),uniqueString(subscription().id, parameters('appResourceGroup')))]",
+        "amsResourceGroup" : "[if(equals(parameters('useExistingAMSAccount'), 'Yes'), parameters('existingAMSResourceGroup'), parameters('appResourceGroup'))]",
+        "amsAccountName": "[if(equals(parameters('useExistingAMSAccount'), 'Yes'), parameters('existingAMSAccountName'), concat(parameters('namePrefix'), uniqueString(subscription().id, parameters('appResourceGroup'))))]",
+        "iotHubResourceGroup" : "[if(equals(parameters('useExistingIoTHub'), 'Yes'), parameters('existingIoTHubResourceGroup'), parameters('appResourceGroup'))]",
+        "iotHubName": "[if(equals(parameters('useExistingIoTHub'), 'Yes'), parameters('existingIoTHubName'), concat(parameters('namePrefix'), uniqueString(subscription().id, parameters('appResourceGroup'))))]"                  
     },
     "resources": [
         {
