@@ -45,7 +45,8 @@
         "nsgName" : "[concat(parameters('vmName'), '-nsg')]",
         "virtualNetworkName": "[concat(parameters('vmName'), '-VirtualNetwork')]",
         "virtualNetworkSubnetName": "[concat(parameters('vmName'), '-VirtualNetwork-Subnet')]",
-        "networkInterfaceName": "[concat(parameters('vmName'), '-NetworkInterface')]"
+        "networkInterfaceName": "[concat(parameters('vmName'), '-NetworkInterface')]",
+        "osDiskName" : "[concat(parameters('vmName'), '-OSDisk')]"
     },
     "resources": [
         {
@@ -179,7 +180,7 @@
                         "version": "latest"
                     },
                     "osDisk": {
-                        "name" : "[concat(parameters('vmName'), '-OSDisk')]",                        
+                        "name" : "[variables('osDiskName')]",                        
                         "caching": "ReadWrite",
                         "createOption": "FromImage"
                     }

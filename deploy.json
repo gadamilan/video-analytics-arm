@@ -84,11 +84,12 @@
     "functions": [],
     "variables": {
         
-        "storageAccountName": "[concat('vastorage',uniqueString(resourceGroup().id))]",
+        "storageAccountName": "[concat('va-storage-',uniqueString(resourceGroup().id))]",
         "amsResourceGroup" : "[if(equals(parameters('useExistingAMSAccount'), 'Yes'), parameters('existingAMSResourceGroup'), resourceGroup().name)]",
-        "amsAccountName": "[if(equals(parameters('useExistingAMSAccount'), 'Yes'), parameters('existingAMSAccountName'), concat('vaams', uniqueString(resourceGroup().id)))]",
+        "amsAccountName": "[if(equals(parameters('useExistingAMSAccount'), 'Yes'), parameters('existingAMSAccountName'), concat('va-ams-', uniqueString(resourceGroup().id)))]",
         "iotHubResourceGroup" : "[if(equals(parameters('useExistingIoTHub'), 'Yes'), parameters('existingIoTHubResourceGroup'), resourceGroup().name)]",
-        "iotHubName": "[if(equals(parameters('useExistingIoTHub'), 'Yes'), parameters('existingIoTHubName'), concat('vaiothub', uniqueString(resourceGroup().id)))]"                  
+        "iotHubName": "[if(equals(parameters('useExistingIoTHub'), 'Yes'), parameters('existingIoTHubName'), concat('va-iothub-', uniqueString(resourceGroup().id)))]",
+        "edgeDeviceName" : "[if(equals(parameters('useExistingEdgeDevice'), 'Yes'), parameters('existingEdgeDeviceName'), concat('va-edge-device-', uniqueString(resourceGroup().id)))]"
     },
     "resources": [
   
@@ -140,6 +141,41 @@
                     }
                 }                
             }
+        },
+        {
+            "condition" : "[equals(parameters('useExistingEdgeDevice'), 'No')]",
+            "name" : "edgeDeviceDeployment",
+            "type" : "Microsoft.Resources/deployments",
+            "apiVersion" : "2019-10-01",
+            "resourceGroup" : "[resourceGroup().name]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri" : "",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "tags" : { 
+                        "value" : "[parameters('resourceTags')]"
+                    },
+                    "storageAccountName" : {
+                        "value" : "[variables('storageAccountName')]"
+                    },
+                    "vmName" : {
+                        "value" : "[variables('edgeDeviceName')]"
+                    },
+                    "vmSize" : {
+                        "value" : "Standard_DS3_v2"
+                    },
+                    "vmAdminUserName" : {
+                        "value" : "adminUserName"
+                    },
+                    "vmAdminPassword" : {
+                        "value" : "adminPa$$w0rd"
+                    }                                                            
+                }
+            }
+
         }      
     ],
     "outputs": {
