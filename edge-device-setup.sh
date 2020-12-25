@@ -4,7 +4,7 @@
 
 # Define helper function for logging
 info() {
-    echo "$(date +"%Y-%m-%d %T") [INFO]"
+    echo "\n $(date +"%Y-%m-%d %T") [INFO]\n"
 }
 
 
