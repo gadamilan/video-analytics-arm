@@ -12,7 +12,6 @@
                 "description" : "Used to tag all resources created by this template"
             }
         },
-        /*
         "useExistingAMSAccount" : {
             "type" : "string",
             "allowedValues" : [
@@ -38,7 +37,7 @@
             },
             "defaultValue" : ""
         },
-        
+        /*
         "useExistingIoTHub" : {
             "type" : "string",
             "allowedValues" : [
@@ -82,27 +81,15 @@
                 "description" : "Provide name of existing edge device you want to use"
             },
             "defaultValue" : ""
-        },
-        "existingEdgeDeviceArchitecture" : {
-            "type" : "string",
-            "allowedValues" : [
-                "X86",
-                "ARM"
-            ],
-            "defaultValue" : "X86",
-            "metadata" : {
-                "description" : "Select your existing edge device's architecture"
-            }
-        },            
+        }
     },
     "functions": [],
     "variables": {
+        //"createStorage" : "[if(equals(parameters('useExistingAMSAccount'), 'No'), 'Yes', if(equals(parameters('useExistingEdgeDevice'), 'No'), 'Yes', 'No'))]",
         "baseUri" : "https://raw.githubusercontent.com/gadamilan/video-analytics-arm/main/",
-        "contributorRoleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
-        "vaIdentity" : "vaIdentity",
-        "vaStorage" : "vaStorage",
         "storageAccountName": "[concat('vastore',uniqueString(resourceGroup().id))]",
-        "amsAccountName" : "[concat('vaams', uniqueString(resourceGroup().id))]",
+        "amsResourceGroup" : "[if(equals(parameters('useExistingAMSAccount'), 'Yes'), parameters('existingAMSResourceGroup'), resourceGroup().name)]",
+        "amsAccountName": "[if(equals(parameters('useExistingAMSAccount'), 'Yes'), parameters('existingAMSAccountName'), concat('vaams', uniqueString(resourceGroup().id)))]",
         "iotHubResourceGroup" : "[if(equals(parameters('useExistingEdgeDevice'), 'Yes'), parameters('existingIotHubResourceGroup'), resourceGroup().name)]",
         "iotHubName": "[if(equals(parameters('useExistingEdgeDevice'), 'Yes'), parameters('existingIotHubName'), concat('va-iothub-', uniqueString(resourceGroup().id)))]",
         "edgeDeviceName" : "[if(equals(parameters('useExistingEdgeDevice'), 'Yes'), parameters('existingEdgeDeviceName'), concat('va-edge-device-', uniqueString(resourceGroup().id)))]",
@@ -112,28 +99,9 @@
         "vmAdminPassword" : "adminPa$$w0rd"
     },
     "resources": [
-        {
-            "name": "[variables('vaIdentity')]",
-            "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
-            "apiVersion": "2018-11-30",
-            "location": "[resourceGroup().location]"
-        },
-        {
-            "type" : "Microsoft.Authorization/roleAssignments",
-            "apiVersion" : "2020-04-01-preview",
-            "name" : "vaRoleAssignment",
-            "dependsOn" : [
-                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('vaIdentity'))]"
-            ],
-            "properties" : {
-                "roleDefinitionId" : "[variables('contributorRoleDefinitionId')]",
-                "principalId" : "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('vaIdentity')), '2018-11-30').principalId]",
-                "scope" : "[resourceGroup().id]",
-                "principalType" : "ServicePrincipal"
-            }
-        },
-        {            
-            "name": "[variables('vaStorage')]",
+          {
+            //"condition" : "[equals(variables('createStorage'), 'Yes')]",
+            "name": "[variables('storageAccountName')]",
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2019-06-01",
             "tags": "[parameters('resourceTags')]",
@@ -146,14 +114,15 @@
                 "accessTier" : "Hot"
             }
         },
-        {            
+        {
+            "condition" : "[equals(parameters('useExistingAMSAccount'), 'No')]",
             "name": "vaDeployment",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",      
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', variables('vaStorage'))]"
+                "[variables('storageAccountName')]"
             ],
-         
+            "resourceGroup" : "[variables('amsResourceGroup')]",                  
             "properties": {                
                 "mode": "Incremental",
                 "templateLink": {
@@ -178,7 +147,8 @@
             "name" : "iotDeployment",
             "type" : "Microsoft.Resources/deployments",
             "apiVersion" : "2019-10-01",
-            "resourceGroup" : "[resourceGroup().name]",
+
+            "resourceGroup" : "[variables('iotHubResourceGroup')]",
             "properties": {
                 "mode" : "Incremental",
                 "templateLink" : {
@@ -202,7 +172,7 @@
             "apiVersion" : "2019-10-01",
             "resourceGroup" : "[resourceGroup().name]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', variables('vaStorage'))]"
+                "[variables('storageAccountName')]"
             ],        
             "properties": {
                 "mode": "Incremental",
@@ -238,12 +208,10 @@
         }      
     ],
     "outputs": {
-        /*
         "amsResourceGroup" : {
             "type" : "string",
             "value" : "[variables('amsResourceGroup')]"
         },
-        */
         "amsAccountName" : {
             "type" : "string",
             "value" : "[variables('amsAccountName')]"
@@ -255,10 +223,6 @@
         "iotHubName" : {
             "type" : "string",
             "value" : "[variables('iotHubName')]"
-        },
-        "edgeDeviceName" : {
-            "type" : "string",
-            "value" : "[variables('edgeDeviceName')]"
-        }                        
+        }        
     }
 }

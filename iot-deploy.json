@@ -13,6 +13,18 @@
             "metadata" : {
                 "description" : "Name of IoT Hub"
             }
+        },
+        "edgeDeviceName" : {
+            "type": "string",
+            "metadata": {
+                "description" : "Name of edge device"
+            }
+        },
+        "identityName" : {
+            "type" : "string",
+            "metadata" : {
+                "description" : "Name of identity"
+            }
         }
     },
     "functions": [],
@@ -53,6 +65,34 @@
                     }
                 }
             }            
+        },
+        {
+            "type" : "Microsoft.Resources/deploymentScripts",
+            "apiVersion" : "2020-10-01",
+            "name" : "edgeDeviceRegistration",
+            "location" : "[variables('location')]",
+            "dependsOn" : [
+                "[parameters('iotHubName')]"
+            ],
+            "kind": "AzureCLI",
+            "identity" : {
+                "type" : "UserAssigned",
+                "userAssignedIdentities" : {
+                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('identityName'))]": {
+                    }
+                }
+            },
+            "properties" : {
+                "forceUpdateTag" : "[utcNow()]",
+                "azCliVersion" : "2.16.0",
+                "scriptContent" : "
+                    echo 'Registering edge device $1 with IoT Hub $2'
+                ",
+                "arguments" : "[format('{0} {1}', parameters('iotHubName'), parameters('edgeDeviceName'))]",
+                "cleanupPreference" : "OnSuccess",
+                "retentionInterval" : "P1D",
+                "timeout" : "PT30M"
+            }
         }        
     ],
     "outputs": {}
