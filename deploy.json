@@ -43,7 +43,11 @@
                 "description" : "Provide name of existing edge device you want to use"
             },
             "defaultValue" : ""
-        }
+        },
+        "utcValue": {
+            "type": "string",
+            "defaultValue": "[utcNow()]"
+        }            
         /*,
         "existingEdgeDeviceArchitecture" : {
             "type" : "string",
@@ -72,7 +76,8 @@
         "vmCustomData" : "[concat('#include\n', variables('baseUri'), 'vm-custom-data.yml')]",
         "vmSize" : "Standard_DS3_v2",
         "vmAdminUserName" : "lvaadmin",
-        "vmAdminPassword" : "adminPa$$w0rd"
+        "vmAdminPassword" : "adminPa$$w0rd",
+        "edgeDeviceRegistrationScript" : "[concat('edgeDeviceRegistration-', resourceGroup().id)]"
     },
     "resources": [
         {
@@ -164,6 +169,36 @@
                 }                
             }
         },
+        {
+            "condition" : "[equals(parameters('useExistingEdgeDevice'), 'No')]",
+            "type" : "Microsoft.Resources/deploymentScripts",
+            "apiVersion" : "2020-10-01",
+            "name" : "[variables('edgeDeviceRegistrationScript')]",
+            "location" : "[resourceGroup().location]",
+            "dependsOn" : [
+                "[resourceId('Microsoft.Resources/deployments', 'iotDeployment')]"
+            ],
+            "kind": "AzureCLI",
+            "identity" : {
+                "type" : "UserAssigned",
+                "userAssignedIdentities" : {
+                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('vaIdentityName'))]": {
+                    }
+                }
+            },
+            "properties" : {
+                "forceUpdateTag" : "[parameters('utcValue')]",
+                "azCliVersion" : "2.16.0",
+                "primaryScriptUri" : "[concat(variables('baseUri'), 'edge-device-setup.sh')]",                
+//                "scriptContent" : "
+  //                  echo \"Registering edge device $1 with IoT Hub $2\"
+    //            ",
+                "arguments" : "[format('{0} {1}', variables('iotHubName'), variables('edgeDeviceName'))]",
+                "cleanupPreference" : "OnSuccess",
+                "retentionInterval" : "P1D",
+                "timeout" : "PT30M"
+            }
+        },                
         {
             "condition" : "[equals(parameters('useExistingEdgeDevice'), 'No')]",
             "name" : "edgeDeviceDeployment",
