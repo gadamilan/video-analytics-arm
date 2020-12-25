@@ -1,6 +1,13 @@
 #!/bin/bash
 
 # This script creates a new Edge Device in given IoT Hub and connects it to a Existing VM with IoT Edge runtime installed on it.
+
+# Define helper function for logging
+info() {
+    echo "$(date +"%Y-%m-%d %T") [INFO]"
+}
+
+
 echo "Logging in with Managed Identity"
 az login --identity --output "none"
 
