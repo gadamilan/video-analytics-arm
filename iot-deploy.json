@@ -25,7 +25,11 @@
             "metadata" : {
                 "description" : "Name of identity"
             }
-        }
+        },
+        "utcValue": {
+            "type": "string",
+            "defaultValue": "[utcNow()]"
+        }        
     },
     "functions": [],
     "variables": {
@@ -83,7 +87,7 @@
                 }
             },
             "properties" : {
-                "forceUpdateTag" : "[utcNow()]",
+                "forceUpdateTag" : "[parameters('utcValue')]",
                 "azCliVersion" : "2.16.0",
                 "scriptContent" : "
                     echo 'Registering edge device $1 with IoT Hub $2'

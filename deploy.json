@@ -12,45 +12,6 @@
                 "description" : "Used to tag all resources created by this template"
             }
         },
-        /*
-        "useExistingAMSAccount" : {
-            "type" : "string",
-            "allowedValues" : [
-                "Yes",
-                "No"
-            ],
-            "defaultValue" : "No",
-            "metadata" : {
-                "description" : "Select 'Yes' if you would like to use an existing account. If you select 'No', a new account will be created in the above resource group"
-            }
-        },
-        "existingAMSResourceGroup" : {
-            "type" : "string",
-            "metadata" : {
-                "description" : "Provide name of resource group of existing Media Services Account you want to use"
-            },
-            "defaultValue" : ""
-        },
-        "existingAMSAccountName" : {
-            "type" : "string",
-            "metadata" : {
-                "description" : "Provide name of existing Media Services Account you want to use"
-            },
-            "defaultValue" : ""
-        },
-        
-        "useExistingIoTHub" : {
-            "type" : "string",
-            "allowedValues" : [
-                "Yes",
-                "No"
-            ],
-            "defaultValue" : "No",
-            "metadata" : {
-                "description" : "Select 'Yes' if you would like to use an existing IoT Hub. If you select 'No', a new IoT Hub will be created in the above resource group"
-            }
-        },
-        */
         "useExistingEdgeDevice" : {
             "type" : "string",
             "allowedValues" : [
@@ -82,7 +43,8 @@
                 "description" : "Provide name of existing edge device you want to use"
             },
             "defaultValue" : ""
-        },
+        }
+        /*,
         "existingEdgeDeviceArchitecture" : {
             "type" : "string",
             "allowedValues" : [
@@ -93,14 +55,15 @@
             "metadata" : {
                 "description" : "Select your existing edge device's architecture"
             }
-        }            
+        }           
+        */ 
     },
     "functions": [],
     "variables": {
         "baseUri" : "https://raw.githubusercontent.com/gadamilan/video-analytics-arm/main/",
-        "contributorRoleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
-        "vaIdentity" : "vaIdentity",
-        "vaStorage" : "vaStorage",
+        "contributorRoleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",        
+        "bootstrapRoleAssignmentId": "[guid(concat(resourceGroup().id, 'contributor'))]",
+        "vaIdentityName" : "[concat('vaIdentity-', uniqueString(resourceGroup().id))]",
         "storageAccountName": "[concat('vastore',uniqueString(resourceGroup().id))]",
         "amsAccountName" : "[concat('vaams', uniqueString(resourceGroup().id))]",
         "iotHubResourceGroup" : "[if(equals(parameters('useExistingEdgeDevice'), 'Yes'), parameters('existingIotHubResourceGroup'), resourceGroup().name)]",
@@ -113,7 +76,7 @@
     },
     "resources": [
         {
-            "name": "[variables('vaIdentity')]",
+            "name": "[variables('vaIdentityName')]",
             "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
             "apiVersion": "2018-11-30",
             "location": "[resourceGroup().location]"
@@ -121,19 +84,19 @@
         {
             "type" : "Microsoft.Authorization/roleAssignments",
             "apiVersion" : "2020-04-01-preview",
-            "name" : "vaRoleAssignment",
+            "name" : "[variables('bootstrapRoleAssignmentId')]",
             "dependsOn" : [
-                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('vaIdentity'))]"
+                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('vaIdentityName'))]"
             ],
             "properties" : {
                 "roleDefinitionId" : "[variables('contributorRoleDefinitionId')]",
-                "principalId" : "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('vaIdentity')), '2018-11-30').principalId]",
+                "principalId" : "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('vaIdentityName')), '2018-11-30').principalId]",
                 "scope" : "[resourceGroup().id]",
                 "principalType" : "ServicePrincipal"
             }
         },
         {            
-            "name": "[variables('vaStorage')]",
+            "name": "[variables('storageAccountName')]",
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2019-06-01",
             "tags": "[parameters('resourceTags')]",
@@ -151,7 +114,7 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",      
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', variables('vaStorage'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
             ],
          
             "properties": {                
@@ -191,6 +154,12 @@
                     },
                     "iotHubName" : {
                         "value" : "[variables('iotHubName')]"
+                    },
+                    "edgeDeviceName" : {
+                        "value" : "[variables('edgeDeviceName')]"
+                    },
+                    "identityName" : {
+                        "value" : "[variables('vaIdentityName')]"
                     }
                 }                
             }
@@ -202,7 +171,7 @@
             "apiVersion" : "2019-10-01",
             "resourceGroup" : "[resourceGroup().name]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', variables('vaStorage'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
             ],        
             "properties": {
                 "mode": "Incremental",
@@ -238,12 +207,7 @@
         }      
     ],
     "outputs": {
-        /*
-        "amsResourceGroup" : {
-            "type" : "string",
-            "value" : "[variables('amsResourceGroup')]"
-        },
-        */
+
         "amsAccountName" : {
             "type" : "string",
             "value" : "[variables('amsAccountName')]"
