@@ -90,7 +90,7 @@
                 "forceUpdateTag" : "[parameters('utcValue')]",
                 "azCliVersion" : "2.16.0",
                 "scriptContent" : "
-                    echo 'Registering edge device $1 with IoT Hub $2'
+                    echo \"Registering edge device $1 with IoT Hub $2\"
                 ",
                 "arguments" : "[format('{0} {1}', parameters('iotHubName'), parameters('edgeDeviceName'))]",
                 "cleanupPreference" : "OnSuccess",
