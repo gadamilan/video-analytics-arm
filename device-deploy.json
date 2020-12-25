@@ -17,7 +17,7 @@
         "vmName" : {
             "type" : "string",
             "metadata" : {
-                "description" : "Prefix used for VM resources"
+                "description" : "VM Name"
             }
         },
         "vmSize" : {

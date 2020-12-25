@@ -65,7 +65,7 @@
     "functions": [],
     "variables": {
         "baseUri" : "https://raw.githubusercontent.com/gadamilan/video-analytics-arm/main/",
-        "contributorRoleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",        
+        "contributorRoleDefinitionId": "[concat(resourceGroup().id, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",        
         "bootstrapRoleAssignmentId": "[guid(concat(resourceGroup().id, 'contributor'))]",
         "vaIdentityName" : "[concat('vaIdentity-', uniqueString(resourceGroup().id))]",
         "storageAccountName": "[concat('vastore',uniqueString(resourceGroup().id))]",
@@ -77,7 +77,7 @@
         "vmSize" : "Standard_DS3_v2",
         "vmAdminUserName" : "lvaadmin",
         "vmAdminPassword" : "adminPa$$w0rd",
-        "edgeDeviceRegistrationScript" : "[concat('edgeDeviceRegistration-', resourceGroup().id)]"
+        "edgeDeviceRegistrationScript" : "[concat('edgeDeviceRegistration-', uniquestring(resourceGroup().id))]"
     },
     "resources": [
         {
@@ -114,91 +114,59 @@
                 "accessTier" : "Hot"
             }
         },
-        {            
-            "name": "vaDeployment",
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2019-10-01",      
+        {
+            "name": "[variables('amsAccountName')]",
+            "type": "Microsoft.Media/mediaServices",
+            "apiVersion": "2018-07-01",
             "dependsOn": [
                 "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
-            ],
-         
-            "properties": {                
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[concat(variables('baseUri'), 'va-deploy.json')]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "tags" : { 
-                        "value" : "[parameters('resourceTags')]"
-                    },
-                    "storageAccountId" : {                        
-                        "value" : "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"                        
-                    },
-                    "amsAccountName" : {
-                        "value" : "[variables('amsAccountName')]"
-                    }
-                }                
-            }
-        },
-        {
-            "condition" : "[equals(parameters('useExistingEdgeDevice'), 'No')]",
-            "name" : "iotDeployment",
-            "type" : "Microsoft.Resources/deployments",
-            "apiVersion" : "2019-10-01",
-            "resourceGroup" : "[resourceGroup().name]",
+            ],                        
+            "location": "[resourceGroup().location]",
             "properties": {
-                "mode" : "Incremental",
-                "templateLink" : {
-                    "uri": "[concat(variables('baseUri'), 'iot-deploy.json')]",                    
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters" : {
-                    "tags" : { 
-                        "value" : "[parameters('resourceTags')]"
-                    },
-                    "iotHubName" : {
-                        "value" : "[variables('iotHubName')]"
-                    },
-                    "edgeDeviceName" : {
-                        "value" : "[variables('edgeDeviceName')]"
-                    },
-                    "identityName" : {
-                        "value" : "[variables('vaIdentityName')]"
+                "storageAccounts": [
+                    {
+                        "id" : "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",                       
+                        "type": "Primary"
                     }
-                }                
-            }
-        },
+                ]
+            },
+            "tags": "[parameters('resourceTags')]"
+        },      
         {
             "condition" : "[equals(parameters('useExistingEdgeDevice'), 'No')]",
-            "type" : "Microsoft.Resources/deploymentScripts",
-            "apiVersion" : "2020-10-01",
-            "name" : "[variables('edgeDeviceRegistrationScript')]",
+            "name" : "[variables('iotHubName')]",
+            "type": "Microsoft.Devices/IotHubs",
+            "apiVersion" : "2020-06-15",
+            "tags": "[parameters('resourceTags')]",            
             "location" : "[resourceGroup().location]",
-            "dependsOn" : [
-                "[resourceId('Microsoft.Resources/deployments', 'iotDeployment')]"
-            ],
-            "kind": "AzureCLI",
-            "identity" : {
-                "type" : "UserAssigned",
-                "userAssignedIdentities" : {
-                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('vaIdentityName'))]": {
+            "sku" : {
+                "name" : "S1",
+                "tier" : "Standard",
+                "capacity" : 1
+            },
+            "properties": {
+                "ipFilterRules": [],
+                "eventHubEndpoints": {
+                    "events": {
+                        "retentionTimeInDays": 1,
+                        "partitionCount": 4
+                    }
+                },
+                "routing": {
+                    "endpoints": {},
+                    "routes": [],
+                    "fallbackRoute": {
+                        "name": "$fallback",
+                        "source": "DeviceMessages",
+                        "condition": "true",
+                        "endpointNames": [
+                            "events"
+                        ],
+                        "isEnabled": true
                     }
                 }
-            },
-            "properties" : {
-                "forceUpdateTag" : "[parameters('utcValue')]",
-                "azCliVersion" : "2.16.0",
-                "primaryScriptUri" : "[concat(variables('baseUri'), 'edge-device-setup.sh')]",                
-//                "scriptContent" : "
-  //                  echo \"Registering edge device $1 with IoT Hub $2\"
-    //            ",
-                "arguments" : "[format('{0} {1}', variables('iotHubName'), variables('edgeDeviceName'))]",
-                "cleanupPreference" : "OnSuccess",
-                "retentionInterval" : "P1D",
-                "timeout" : "PT30M"
-            }
-        },                
+            }            
+        },                 
         {
             "condition" : "[equals(parameters('useExistingEdgeDevice'), 'No')]",
             "name" : "edgeDeviceDeployment",
@@ -238,8 +206,48 @@
                     }
                 }
             }
-
-        }      
+        },
+        {
+            "condition" : "[equals(parameters('useExistingEdgeDevice'), 'No')]",
+            "type" : "Microsoft.Resources/deploymentScripts",
+            "apiVersion" : "2020-10-01",
+            "name" : "[variables('edgeDeviceRegistrationScript')]",
+            "location" : "[resourceGroup().location]",
+            "dependsOn" : [                
+                "[resourceId('Microsoft.Resources/deployments', 'edgeDeviceDeployment')]",
+                "[resourceId('Microsoft.Devices/IotHubs', variables('iotHubName'))]"
+            ],
+            "kind": "AzureCLI",
+            "identity" : {
+                "type" : "UserAssigned",
+                "userAssignedIdentities" : {
+                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('vaIdentityName'))]": {
+                    }
+                }
+            },
+            "properties" : {
+                "forceUpdateTag" : "[parameters('utcValue')]",
+                "azCliVersion" : "2.16.0",
+                "primaryScriptUri" : "[concat(variables('baseUri'), 'edge-device-setup.sh')]",                                
+                "environmentVariables" : [
+                    {
+                        "name" : "RESOURCE_GROUP",
+                        "value" : "[resourceGroup().name]"
+                    },
+                    {
+                        "name" : "DEVICE_NAME",
+                        "value" : "[variables('edgeDeviceName')]"
+                    },
+                    {
+                        "name" : "IOTHUB_NAME",
+                        "value" : "[variables('iotHubName')]"
+                    }
+                ],
+                "cleanupPreference" : "OnSuccess",
+                "retentionInterval" : "P1D",
+                "timeout" : "PT30M"
+            }
+        }              
     ],
     "outputs": {
 
