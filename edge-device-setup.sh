@@ -2,6 +2,7 @@
 
 # This script creates a new Edge Device in given IoT Hub and connects it to a Existing VM with IoT Edge runtime installed on it.
 
+printenv
 
 echo "Logging in with Managed Identity"
 az login --identity --output "none"
@@ -16,22 +17,19 @@ if test -z "$(az iot hub device-identity list -n $IOTHUB_NAME | grep "deviceId" 
 fi
 
 DEVICE_CONNECTION_STRING=$(az iot hub device-identity connection-string show --device-id $DEVICE_NAME --hub-name $IOTHUB_NAME --query='connectionString')
-echo "$DEVICE_CONNECTION_STRING"
 
 # Deploy the IoT Edge runtime on the VM
 az vm show -n $DEVICE_NAME -g $DEVICE_RESOURCE_GROUP &> /dev/null
 if [ $? -ne 0 ]; then
     echo -e "Deploying a VM that will act as your IoT Edge device for using the samples."
-    CLOUD_INIT_FILE='cloud-init.yml'
+    CLOUD_INIT_FILE='./cloud-init.yml'
     curl -s $CLOUD_INIT_URL > $CLOUD_INIT_FILE
 
     # here be dragons
     # sometimes a / is present in the connection string and it breaks sed
     # this escapes the /
     DEVICE_CONNECTION_STRING=${DEVICE_CONNECTION_STRING//\//\\/} 
-    sed -i "s/xDEVICE_CONNECTION_STRINGx/${DEVICE_CONNECTION_STRING//\"/}/g" $CLOUD_INIT_FILE
-
-    cat $CLOUD_INIT_FILE
+    sed -i "s/xDEVICE_CONNECTION_STRINGx/${DEVICE_CONNECTION_STRING//\"/}/g" $CLOUD_INIT_FILE   
 
     az vm create \
     --resource-group $DEVICE_RESOURCE_GROUP \
