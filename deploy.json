@@ -108,7 +108,8 @@
                 //"roleDefinitionId" : "[variables('contributorRoleDefinitionId')]",
                 "roleDefinitionId" : "[variables('ownerRoleDefinitionId')]", // Using owner role definition id to have ability to create AMS service principal 
                 "principalId" : "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('vaIdentityName')), '2018-11-30').principalId]",
-                "scope" : "[resourceGroup().id]",
+                //"scope" : "[resourceGroup().id]",
+                "scope" : "[subscription().id]", // Set this at subscription scope to make AMS service prinicipal CLI commands work
                 "principalType" : "ServicePrincipal"
             }
         },

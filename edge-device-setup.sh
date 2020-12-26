@@ -25,7 +25,7 @@ if [ $USE_EXISTING_DEVICE=="No" ]; then
     # Deploy the IoT Edge runtime on the VM
     az vm show -n $DEVICE_NAME -g $DEVICE_RESOURCE_GROUP &> /dev/null
     if [ $? -ne 0 ]; then
-        echo -e "Deploying a VM that will act as your IoT Edge device for using the samples."
+        echo -e "Deploying a VM that will act as your IoT Edge device for using the samples..."
         CLOUD_INIT_FILE='./cloud-init.yml'
         curl -s $CLOUD_INIT_URL > $CLOUD_INIT_FILE
 
@@ -35,9 +35,7 @@ if [ $USE_EXISTING_DEVICE=="No" ]; then
         DEVICE_CONNECTION_STRING=${DEVICE_CONNECTION_STRING//\//\\/} 
         sed -i "s/xDEVICE_CONNECTION_STRINGx/${DEVICE_CONNECTION_STRING//\"/}/g" $CLOUD_INIT_FILE   
 
-        sed -i "s/\$DEVICE_USER/$DEVICE_USERNAME/g" $CLOUD_INIT_FILE
-
-        cat $CLOUD_INIT_FILE
+        sed -i "s/\$DEVICE_USER/$DEVICE_USERNAME/g" $CLOUD_INIT_FILE        
 
         az vm create \
         --resource-group $DEVICE_RESOURCE_GROUP \
@@ -49,7 +47,7 @@ if [ $USE_EXISTING_DEVICE=="No" ]; then
         --size $DEVICE_SIZE \
         --output none
 
-        echo "VM deployment complete"
+        echo "VM deployment complete..."
     else
         echo -e "A VM named $DEVICE_NAME was found in ${DEVICE_RESOURCE_GROUP}"
     fi
