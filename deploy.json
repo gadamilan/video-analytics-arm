@@ -134,7 +134,7 @@
             ],
             "properties" : {                
                 "roleDefinitionId" : "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '8e3af657-a8ff-443c-a75c-2fe8c4bcb635')]", 
-                "principalId" : "[reference(subscriptionResourceId('Microsoft.ManagedIdentity/userAssignedIdentities/', variables('vaIdentityName')), '2018-11-30').principalId]",
+                "principalId" : "[reference(subscriptionResourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('vaIdentityName')), '2018-11-30').principalId]",
                 "scope" : "[subscription().id]",
                 "principalType": "ServicePrincipal"
             }
@@ -199,7 +199,7 @@
                             "properties": {
                                 "storageAccounts": [
                                     {
-                                        "id" : "[subscriptionResourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",                                                     
+                                        "id" : "[subscriptionResourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",                                                     
                                         "type": "Primary"                                        
                                     }
                                 ]
