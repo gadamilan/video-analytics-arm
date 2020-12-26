@@ -67,23 +67,25 @@
 
         "baseUri" : "https://raw.githubusercontent.com/gadamilan/video-analytics-arm/main/",
 
-        "ownerRoleDefinitionId" : "[concat(resourceGroup().id, '/providers/Microsoft.Authorization/roleDefinitions/', '8e3af657-a8ff-443c-a75c-2fe8c4bcb635')]",        
+        //"ownerRoleDefinitionId" : "[concat(resourceGroup().id, '/providers/Microsoft.Authorization/roleDefinitions/', '8e3af657-a8ff-443c-a75c-2fe8c4bcb635')]",        
         "ownerRoleAssignmentId" : "[guid(concat(subscription().id, 'owner'))]",
-        "vaIdentityName" : "[concat('vaIdentity-', uniqueString(resourceGroup().id))]",
-        
-        "storageAccountName": "[concat('vastore',uniqueString(resourceGroup().id))]",
-        
-        "amsAccountName" : "[concat('vaams', uniqueString(resourceGroup().id))]",
 
-        "iotHubResourceGroup" : "[if(equals(parameters('useExistingEdgeDevice'), 'Yes'), parameters('existingIotHubResourceGroup'), resourceGroup().name)]",
-        "iotHubName": "[if(equals(parameters('useExistingEdgeDevice'), 'Yes'), parameters('existingIotHubName'), concat('va-iothub-', uniqueString(resourceGroup().id)))]",
+        "resourceUniqueSuffix" : "[uniqueString(subscription().subscriptionId, parameters('resourceGroupName'))]",
+        "vaIdentityName" : "[concat('vaIdentity-', variables('resourceUniqueSuffix'))]",
+        
+        "storageAccountName": "[concat('vastore', variables('resourceUniqueSuffix'))]",
+        
+        "amsAccountName" : "[concat('vaams', variables('resourceUniqueSuffix'))]",
 
-        "edgeDeviceName" : "[if(equals(parameters('useExistingEdgeDevice'), 'Yes'), parameters('existingEdgeDeviceName'), concat('va-edge-device-', uniqueString(resourceGroup().id)))]",        
+        "iotHubResourceGroup" : "[if(equals(parameters('useExistingEdgeDevice'), 'Yes'), parameters('existingIotHubResourceGroup'), parameters('resourceGroupName'))]",
+        "iotHubName": "[if(equals(parameters('useExistingEdgeDevice'), 'Yes'), parameters('existingIotHubName'), concat('va-iothub-', variables('resourceUniqueSuffix')))]",
+
+        "edgeDeviceName" : "[if(equals(parameters('useExistingEdgeDevice'), 'Yes'), parameters('existingEdgeDeviceName'), concat('va-edge-device-', variables('resourceUniqueSuffix')))]",        
         "vmSize" : "Standard_DS3_v2",
         "vmAdminUserName" : "lvaadmin",
         "vmAdminPassword" : "admin-Passw0rd",
         "cloudInitUrl" : "[concat(variables('baseUri'), 'vm-custom-data.yml')]",
-        "edgeDeviceRegistrationScript" : "[concat('edgeDeviceRegistration-', uniquestring(resourceGroup().id))]",
+        "edgeDeviceRegistrationScript" : "[concat('edgeDeviceRegistration-', variables('resourceUniqueSuffix'))]",
 
         "vaDeploymentManifestUrl" : "[concat('baseUri', 'va-deployment-manifest-template.json')]"
     },
@@ -127,7 +129,7 @@
             "apiVersion" : "2020-04-01-preview",            
             "name" : "[variables('ownerRoleAssignmentId')]", 
             "dependsOn" : [
-                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('vaIdentityName'))]"
+                "VAManagedIdentity"
             ],
             "properties" : {                
                 "roleDefinitionId" : "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '8e3af657-a8ff-443c-a75c-2fe8c4bcb635')]", 
@@ -174,7 +176,7 @@
             "name": "amsDeployment",
             "type": "Microsoft.Resources/deployments",
             "dependsOn" : [
-                "[resourceId('Microsoft.Resources/deployments', 'storageDeployment')]"
+                "storageDeployment"
             ],
             "apiVersion": "2020-06-01",
             "resourceGroup" : "[parameters('resourceGroupName')]",
@@ -226,6 +228,7 @@
                         {
                             "type": "Microsoft.Devices/IotHubs",
                             "apiVersion" : "2020-06-15",
+                            "name" : "[variables('iotHubName')]",
                             "location" : "[variables('location')]",
                             "sku" : {
                                 "name" : "S1",
@@ -267,7 +270,7 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2020-06-01",
             "dependsOn" : [
-                "[resourceId('Microsoft.Resources/deployments', 'IotHubDeployment')]"
+                "IotHubDeployment"
             ],
             "resourceGroup" : "[parameters('resourceGroupName')]",
 
