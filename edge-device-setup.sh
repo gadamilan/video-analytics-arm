@@ -12,17 +12,16 @@ az extension add --name azure-iot
 # Configure IoT Hub for an edge device
 echo "registering device..."
 if test -z "$(az iot hub device-identity list -n $IOTHUB_NAME | grep "deviceId" | grep $DEVICE_NAME)"; then
-    az iot hub device-identity create --hub-name $IOTHUB_NAME --device-id $DEVICE_NAME --edge-enabled -o none
-    checkForError
+    az iot hub device-identity create --hub-name $IOTHUB_NAME --device-id $DEVICE_NAME --edge-enabled -o none    
 fi
 
-DEVICE_CONNECTION_STRING=$(az iot hub device-identity show-connection-string --device-id $DEVICE_NAME --hub-name $IOTHUB_NAME --query='connectionString')
+DEVICE_CONNECTION_STRING=$(az iot hub device-identity connection-string show --device-id $DEVICE_NAME --hub-name $IOTHUB_NAME --query='connectionString')
 
 # Deploy the IoT Edge runtime on the VM
 az vm show -n $DEVICE_NAME -g $DEVICE_RESOURCE_GROUP &> /dev/null
 if [ $? -ne 0 ]; then
     echo -e "Deploying a VM that will act as your IoT Edge device for using the samples."
-
+    CLOUD_INIT_FILE='cloud-init.yml'
     curl -s $CLOUD_INIT_URL > $CLOUD_INIT_FILE
 
     # here be dragons

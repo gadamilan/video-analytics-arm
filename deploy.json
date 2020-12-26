@@ -73,11 +73,12 @@
         "iotHubResourceGroup" : "[if(equals(parameters('useExistingEdgeDevice'), 'Yes'), parameters('existingIotHubResourceGroup'), resourceGroup().name)]",
         "iotHubName": "[if(equals(parameters('useExistingEdgeDevice'), 'Yes'), parameters('existingIotHubName'), concat('va-iothub-', uniqueString(resourceGroup().id)))]",
         "edgeDeviceName" : "[if(equals(parameters('useExistingEdgeDevice'), 'Yes'), parameters('existingEdgeDeviceName'), concat('va-edge-device-', uniqueString(resourceGroup().id)))]",
-        "vmCustomData" : "[concat('#include\n', variables('baseUri'), 'vm-custom-data.yml')]",
+        //"vmCustomData" : "[concat('#include\n', variables('baseUri'), 'vm-custom-data.yml')]",
         "vmSize" : "Standard_DS3_v2",
         "vmAdminUserName" : "lvaadmin",
         "vmAdminPassword" : "adminPa$$w0rd",
-        "edgeDeviceRegistrationScript" : "[concat('edgeDeviceRegistration-', uniquestring(resourceGroup().id))]"
+        "edgeDeviceRegistrationScript" : "[concat('edgeDeviceRegistration-', uniquestring(resourceGroup().id))]",
+        "utcValue" : "[utcNow()]"
     },
     "resources": [
         {
@@ -229,7 +230,7 @@
             },
             
             "properties" : {
-                "forceUpdateTag" : "[parameters('utcValue')]",
+                "forceUpdateTag" : "[variables('utcValue')]",
                 "azCliVersion" : "2.16.0",
                 "storageAccountSettings" : {
                     "storageAccountName" : "[variables('storageAccountName')]",
