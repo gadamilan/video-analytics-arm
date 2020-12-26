@@ -134,7 +134,7 @@
             ],
             "properties" : {                
                 "roleDefinitionId" : "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '8e3af657-a8ff-443c-a75c-2fe8c4bcb635')]", 
-                "principalId" : "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('vaIdentityName')), '2018-11-30').principalId]"                
+                "principalId" : "[concat(subscription().id, '/resourceGroups/', parameters('resourceGroupName'), '/providers/Microsoft.ManagedIdentity/userAssignedIdentities/', variables('vaIdentityName'), '2018-11-30').principalId]"                
             }
         },
 
@@ -197,8 +197,9 @@
                             "properties": {
                                 "storageAccounts": [
                                     {
-                                        "id" : "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",                       
-                                        "type": "Primary"
+                                        "id" : "[concat(subscription().id,'/resourceGroups/', parameters('resourceGroupName'), '/providers/Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
+                                        //"id" : "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",                       
+                                        "type": "Primary"                                        
                                     }
                                 ]
                             }                            
