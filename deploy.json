@@ -101,6 +101,7 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2020-06-01",
             "name": "VAManagedIdentity",
+            "resourceGroup": "[parameters('resourceGroupName')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/resourceGroups/', parameters('resourceGroupName'))]"
             ],
@@ -120,8 +121,8 @@
                         }
                     ]
                 }
-            },
-            "resourceGroup": "[parameters('resourceGroupName')]"
+            }
+            
         },
 
         {
