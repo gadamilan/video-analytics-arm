@@ -29,7 +29,6 @@ packages:
   - moby-cli
   - libiothsm-std
   - moby-engine
-  - azure-cli
 runcmd:
   - |
       set -x

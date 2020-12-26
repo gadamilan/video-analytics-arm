@@ -166,7 +166,8 @@
                     }
                 }
             }            
-        },                 
+        },       
+        /*          
         {
             "condition" : "[equals(parameters('useExistingEdgeDevice'), 'No')]",
             "name" : "edgeDeviceDeployment",
@@ -207,6 +208,7 @@
                 }
             }
         },
+        */
         {
             "condition" : "[equals(parameters('useExistingEdgeDevice'), 'No')]",
             "type" : "Microsoft.Resources/deploymentScripts",
@@ -214,7 +216,7 @@
             "name" : "[variables('edgeDeviceRegistrationScript')]",
             "location" : "[resourceGroup().location]",
             "dependsOn" : [                
-                "[resourceId('Microsoft.Resources/deployments', 'edgeDeviceDeployment')]",
+                //"[resourceId('Microsoft.Resources/deployments', 'edgeDeviceDeployment')]",
                 "[resourceId('Microsoft.Devices/IotHubs', variables('iotHubName'))]"
             ],
             "kind": "AzureCLI",
@@ -236,7 +238,7 @@
                 "primaryScriptUri" : "[concat(variables('baseUri'), 'edge-device-setup.sh')]",                                
                 "environmentVariables" : [
                     {
-                        "name" : "RESOURCE_GROUP_DEVICE",
+                        "name" : "DEVICE_RESOURCE_GROUP",
                         "value" : "[resourceGroup().name]"
                     },
                     {
@@ -248,17 +250,21 @@
                         "value" : "[variables('iotHubName')]"
                     },
                     {
-                        "name" : "NSG_NAME",
-                        "value" : "[concat(variables('edgeDeviceName'), '-nsg')]"
-                    },
-                    {
-                        "name" : "EDGE_DEVICE_USERNAME",
+                        "name" : "DEVICE_USERNAME",
                         "value" : "[variables('vmAdminUserName')]"
                     },
                     {
-                        "name" : "EDGE_DEVICE_PASSWORD",
+                        "name" : "DEVICE_PASSWORD",
                         "value" : "[variables('vmAdminPassword')]"
-                    }
+                    },
+                    {
+                        "name" : "DEVICE_SIZE",
+                        "value" : "[variables('vmSize')]"
+                    },
+                    {
+                        "name" : "CLOUD_INIT_URL",
+                        "value" : "[concat(variables('baseUri'), 'vm-custom-data.yml')]"
+                    } 
                 ],
                 "cleanupPreference" : "OnSuccess",
                 "retentionInterval" : "P1D",
