@@ -134,7 +134,9 @@
             ],
             "properties" : {                
                 "roleDefinitionId" : "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '8e3af657-a8ff-443c-a75c-2fe8c4bcb635')]", 
-                "principalId" : "[concat(subscription().id, '/resourceGroups/', parameters('resourceGroupName'), '/providers/Microsoft.ManagedIdentity/userAssignedIdentities/', variables('vaIdentityName'), '2018-11-30').principalId]"                
+                "principalId" : "[concat(subscription().id, '/resourceGroups/', parameters('resourceGroupName'), '/providers/Microsoft.ManagedIdentity/userAssignedIdentities/', variables('vaIdentityName'), '2018-11-30').principalId]",
+                "scope" : "[subscription().id]",
+                "principalType": "ServicePrincipal"
             }
         },
 
@@ -302,7 +304,7 @@
                                 "azCliVersion" : "2.16.0",
                                 "storageAccountSettings" : {
                                     "storageAccountName" : "[variables('storageAccountName')]",
-                                    "storageAccountKey" : "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2019-06-01').keys[0].value]"
+                                    "storageAccountKey" : "[listKeys(subscriptionResourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2019-06-01').keys[0].value]"
                                 },
                                 "primaryScriptUri" : "[concat(variables('baseUri'), 'edge-device-setup.sh')]",                                
                                 "environmentVariables" : [
