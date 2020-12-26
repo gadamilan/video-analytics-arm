@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Print out the Azure CLI version
-az version
-
 ######################################################################################################################
 echo "Logging in with Managed Identity"
 az login --identity --output "none"
@@ -22,7 +19,7 @@ DEVICE_CONNECTION_STRING=$(az iot hub device-identity connection-string show --d
 
 ######################################################################################################################
 # Check if there is a need to deploy a virtual edge device
-if [ $USE_EXISTING_DEVICE == 'No ']; then
+if [ $USE_EXISTING_DEVICE == "No"]; then
 
     # Deploy the IoT Edge runtime on the VM
     az vm show -n $DEVICE_NAME -g $DEVICE_RESOURCE_GROUP &> /dev/null
@@ -103,6 +100,8 @@ sed -i "s/\$AAD_SERVICE_PRINCIPAL_ID/$AAD_SERVICE_PRINCIPAL_ID/" $DEPLOYMENT_MAN
 sed -i "s/\$AAD_SERVICE_PRINCIPAL_SECRET/$AAD_SERVICE_PRINCIPAL_SECRET/" $DEPLOYMENT_MANIFEST_FILE
 sed -i "s/\$OUTPUT_VIDEO_FOLDER_ON_DEVICE/\/var\/media/" $DEPLOYMENT_MANIFEST_FILE
 sed -i "s/\$APPDATA_FOLDER_ON_DEVICE/${APPDATA_FOLDER_ON_DEVICE//\//\\/}/" $DEPLOYMENT_MANIFEST_FILE
+
+cat $DEPLOYMENT_MANIFEST_FILE
 
 ######################################################################################################################
 # Deploy the modules on the edge device

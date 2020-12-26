@@ -235,7 +235,7 @@
                     },
                     {
                         "name" : "CLOUD_INIT_URL",
-                        "value" : "[(variables('cloudInitUrl'))]"
+                        "value" : "[variables('cloudInitUrl')]"
                     },
                     {
                         "name" : "DEPLOYMENT_MANIFEST_URL",
