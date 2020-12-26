@@ -67,6 +67,7 @@
         "baseUri" : "https://raw.githubusercontent.com/gadamilan/video-analytics-arm/main/",
 
         "contributorRoleDefinitionId": "[concat(resourceGroup().id, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",        
+        "ownerRoleDefinitionId" : "[concat(resourceGroup().id, '/providers/Microsoft.Authorization/roleDefinitions/', '8e3af657-a8ff-443c-a75c-2fe8c4bcb635')]",
         "bootstrapRoleAssignmentId": "[guid(concat(resourceGroup().id, 'contributor'))]",
         "vaIdentityName" : "[concat('vaIdentity-', uniqueString(resourceGroup().id))]",
         
@@ -101,7 +102,8 @@
                 "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('vaIdentityName'))]"
             ],
             "properties" : {
-                "roleDefinitionId" : "[variables('contributorRoleDefinitionId')]",
+                //"roleDefinitionId" : "[variables('contributorRoleDefinitionId')]",
+                "roleDefinitionId" : "[variables('ownerRoleDefinitionId')]", // Using owner role definition id to have ability to create AMS service principal 
                 "principalId" : "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('vaIdentityName')), '2018-11-30').principalId]",
                 "scope" : "[resourceGroup().id]",
                 "principalType" : "ServicePrincipal"
