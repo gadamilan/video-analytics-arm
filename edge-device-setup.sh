@@ -37,6 +37,8 @@ if [ $USE_EXISTING_DEVICE=="No" ]; then
 
         sed -i "s/\$DEVICE_USER/$DEVICE_USERNAME/g" $CLOUD_INIT_FILE
 
+        cat $CLOUD_INIT_FILE
+
         az vm create \
         --resource-group $DEVICE_RESOURCE_GROUP \
         --name $DEVICE_NAME \
