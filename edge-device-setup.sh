@@ -16,7 +16,7 @@ if test -z "$(az iot hub device-identity list -n $IOTHUB_NAME | grep "deviceId" 
 fi
 
 DEVICE_CONNECTION_STRING=$(az iot hub device-identity connection-string show --device-id $DEVICE_NAME --hub-name $IOTHUB_NAME --query='connectionString')
-echo "${DEVICE_CONNECTION_STRING}"
+echo "$DEVICE_CONNECTION_STRING"
 
 # Deploy the IoT Edge runtime on the VM
 az vm show -n $DEVICE_NAME -g $DEVICE_RESOURCE_GROUP &> /dev/null
@@ -31,7 +31,17 @@ if [ $? -ne 0 ]; then
     DEVICE_CONNECTION_STRING=${DEVICE_CONNECTION_STRING//\//\\/} 
     sed -i "s/xDEVICE_CONNECTION_STRINGx/${DEVICE_CONNECTION_STRING//\"/}/g" $CLOUD_INIT_FILE
 
+    cat $CLOUD_INIT_FILE
 
+    az vm create \
+    --resource-group $DEVICE_RESOURCE_GROUP \
+    --name $DEVICE_NAME \
+    --image Canonical:UbuntuServer:18.04-LTS:latest \
+    --admin-username $DEVICE_USERNAME \
+    --admin-password $DEVICE_PASSWORD \    
+    --custom-data $CLOUD_INIT_FILE \
+    --size $DEVICE_SIZE \
+    --output none
 
 else
     echo -e "A VM named $DEVICE_NAME was found in ${DEVICE_RESOURCE_GROUP}"
