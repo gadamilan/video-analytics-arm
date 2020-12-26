@@ -66,9 +66,10 @@
     "variables": {
         "baseUri" : "https://raw.githubusercontent.com/gadamilan/video-analytics-arm/main/",
 
-        "contributorRoleDefinitionId": "[concat(resourceGroup().id, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",        
+        //"contributorRoleDefinitionId": "[concat(resourceGroup().id, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",        
         "ownerRoleDefinitionId" : "[concat(resourceGroup().id, '/providers/Microsoft.Authorization/roleDefinitions/', '8e3af657-a8ff-443c-a75c-2fe8c4bcb635')]",
-        "bootstrapRoleAssignmentId": "[guid(concat(resourceGroup().id, 'contributor'))]",
+        //"contributorRoleAssignmentId": "[guid(concat(resourceGroup().id, 'contributor'))]",
+        "ownerRoleAssignmentId" : "[guid(concat(resourceGroup().id, 'owner'))]",
         "vaIdentityName" : "[concat('vaIdentity-', uniqueString(resourceGroup().id))]",
         
         "storageAccountName": "[concat('vastore',uniqueString(resourceGroup().id))]",
@@ -98,7 +99,8 @@
         {
             "type" : "Microsoft.Authorization/roleAssignments",
             "apiVersion" : "2020-04-01-preview",
-            "name" : "[variables('bootstrapRoleAssignmentId')]",
+            //"name" : "[variables('contributorRoleAssignmentId')]",
+            "name" : "[variables('ownerRoleAssignmentId')]", // Using onwer role name
             "dependsOn" : [
                 "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('vaIdentityName'))]"
             ],
