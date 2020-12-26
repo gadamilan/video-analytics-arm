@@ -1,15 +1,15 @@
 #!/bin/bash
 
 ######################################################################################################################
-echo "Logging in with Managed Identity"
+echo "Logging in with Managed Identity..."
 az login --identity --output "none"
 
-echo "Installing Azure Iot extension"
+echo "Installing Azure Iot extension..."
 az extension add --name azure-iot
 
 ######################################################################################################################
 # Configure IoT Hub for an edge device
-echo "registering device..."
+echo "Registering edge device with IoT Hub..."
 if test -z "$(az iot hub device-identity list -n $IOTHUB_NAME | grep "deviceId" | grep $DEVICE_NAME)"; then
     az iot hub device-identity create --hub-name $IOTHUB_NAME --device-id $DEVICE_NAME --edge-enabled -o none    
 fi
@@ -19,7 +19,7 @@ DEVICE_CONNECTION_STRING=$(az iot hub device-identity connection-string show --d
 
 ######################################################################################################################
 # Check if there is a need to deploy a virtual edge device
-if [ $USE_EXISTING_DEVICE == "No"]; then
+if [ $USE_EXISTING_DEVICE == "No" ]; then
 
     # Deploy the IoT Edge runtime on the VM
     az vm show -n $DEVICE_NAME -g $DEVICE_RESOURCE_GROUP &> /dev/null
@@ -61,6 +61,8 @@ else
     AMS_CONNECTION=$(az ams account sp reset-credentials -o yaml --resource-group $DEVICE_RESOURCE_GROUP --account-name $AMS_ACCOUNT_NAME)
 fi
 
+echo $AMS_CONNECTION
+
 # Capture config information
 re="AadTenantId:\s([0-9a-z\-]*)"
 AAD_TENANT_ID=$([[ "$AMS_CONNECTION" =~ $re ]] && echo ${BASH_REMATCH[1]})
@@ -77,14 +79,16 @@ SUBSCRIPTION_ID=$([[ "$AMS_CONNECTION" =~ $re ]] && echo ${BASH_REMATCH[1]})
 # AMS account may have a standard streaming endpoint in stopped state. 
 # A Premium streaming endpoint is recommended when recording multiple days worth of video
 
-echo -e "Updating the Media Services account to use one Premium streaming endpoint."
+echo -e "Updating the Media Services account to use one Premium streaming endpoint..."
 az ams streaming-endpoint scale --resource-group $DEVICE_RESOURCE_GROUP --account-name $AMS_ACCOUNT_NAME -n default --scale-units 1
 
-echo "Kicking off the async start of the Premium streaming endpoint."
+echo "Kicking off the async start of the Premium streaming endpoint..."
 az ams streaming-endpoint start --resource-group $DEVICE_RESOURCE_GROUP --account-name $AMS_ACCOUNT_NAME -n default --no-wait
 
 ######################################################################################################################
 # Set up deployment manifest
+
+echo "Setting up deployment manfiest file..."
 
 DEPLOYMENT_MANIFEST_FILE='va-deployment-manifest.json'
 APPDATA_FOLDER_ON_DEVICE="/var/lib/azuremediaservices"
@@ -106,6 +110,7 @@ cat $DEPLOYMENT_MANIFEST_FILE
 ######################################################################################################################
 # Deploy the modules on the edge device
 
+echo "Deploying modules on edge device..."
 az iot edge set-modules --hub-name $IOTHUB_NAME --device-id $DEVICE_NAME --content $DEPLOYMENT_MANIFEST_FILE
 
 ######################################################################################################################
