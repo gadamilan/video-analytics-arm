@@ -94,6 +94,7 @@
             "apiVersion": "2018-11-30",
             "location": "[resourceGroup().location]"
         },
+
         {
             "type" : "Microsoft.Authorization/roleAssignments",
             "apiVersion" : "2020-04-01-preview",
@@ -109,6 +110,7 @@
                 "principalType" : "ServicePrincipal"
             }
         },
+
         {            
             "name": "[variables('storageAccountName')]",
             "type": "Microsoft.Storage/storageAccounts",
@@ -123,6 +125,7 @@
                 "accessTier" : "Hot"
             }
         },
+
         {
             "name": "[variables('amsAccountName')]",
             "type": "Microsoft.Media/mediaServices",
@@ -176,6 +179,7 @@
                 }
             }            
         },       
+
         {
             "condition" : "[equals(parameters('useExistingEdgeDevice'), 'No')]",
             "type" : "Microsoft.Resources/deploymentScripts",
@@ -267,6 +271,6 @@
         "edgeDeviceName" : {
             "type" : "string",
             "value" : "[variables('edgeDeviceName')]"
-        }                        
+        }                                
     }
 }

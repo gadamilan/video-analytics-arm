@@ -35,7 +35,7 @@ if [ $USE_EXISTING_DEVICE=="No" ]; then
         DEVICE_CONNECTION_STRING=${DEVICE_CONNECTION_STRING//\//\\/} 
         sed -i "s/xDEVICE_CONNECTION_STRINGx/${DEVICE_CONNECTION_STRING//\"/}/g" $CLOUD_INIT_FILE   
 
-        sed -i "s/\$DEVICE_USER/$DEVICE_USERNAME/g" $DEPLOYMENT_MANIFEST_FILE
+        sed -i "s/\$DEVICE_USER/$DEVICE_USERNAME/g" $CLOUD_INIT_FILE
 
         az vm create \
         --resource-group $DEVICE_RESOURCE_GROUP \
