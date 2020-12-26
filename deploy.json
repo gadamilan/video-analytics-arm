@@ -294,7 +294,7 @@
                             "identity" : {
                                 "type" : "UserAssigned",
                                 "userAssignedIdentities" : {
-                                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('vaIdentityName'))]": {
+                                    "[subscriptionResourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('vaIdentityName'))]": {
                                     }                                    
                                 }
                             },
