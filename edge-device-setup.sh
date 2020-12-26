@@ -36,7 +36,7 @@ if [ $? -ne 0 ]; then
     --name $DEVICE_NAME \
     --image Canonical:UbuntuServer:18.04-LTS:latest \
     --admin-username $DEVICE_USERNAME \
-    --admin-password $DEVICE_PASSWORD \    
+    --admin-password $DEVICE_PASSWORD \
     --custom-data $CLOUD_INIT_FILE \
     --size $DEVICE_SIZE \
     --output none

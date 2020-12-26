@@ -76,7 +76,7 @@
         //"vmCustomData" : "[concat('#include\n', variables('baseUri'), 'vm-custom-data.yml')]",
         "vmSize" : "Standard_DS3_v2",
         "vmAdminUserName" : "lvaadmin",
-        "vmAdminPassword" : "adminPa$$w0rd",
+        "vmAdminPassword" : "admin-Passw0rd",
         "edgeDeviceRegistrationScript" : "[concat('edgeDeviceRegistration-', uniquestring(resourceGroup().id))]"        
     },
     "resources": [
