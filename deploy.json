@@ -67,9 +67,10 @@
         "baseUri" : "https://raw.githubusercontent.com/gadamilan/video-analytics-arm/main/",
 
         //"contributorRoleDefinitionId": "[concat(resourceGroup().id, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",        
-        "ownerRoleDefinitionId" : "[concat(resourceGroup().id, '/providers/Microsoft.Authorization/roleDefinitions/', '8e3af657-a8ff-443c-a75c-2fe8c4bcb635')]",
+        //"ownerRoleDefinitionId" : "[concat(resourceGroup().id, '/providers/Microsoft.Authorization/roleDefinitions/', '8e3af657-a8ff-443c-a75c-2fe8c4bcb635')]",
+
         //"contributorRoleAssignmentId": "[guid(concat(resourceGroup().id, 'contributor'))]",
-        "ownerRoleAssignmentId" : "[guid(concat(resourceGroup().id, 'owner'))]",
+        "ownerRoleAssignmentId" : "[guid(concat(subscription().id, 'owner'))]",
         "vaIdentityName" : "[concat('vaIdentity-', uniqueString(resourceGroup().id))]",
         
         "storageAccountName": "[concat('vastore',uniqueString(resourceGroup().id))]",
@@ -100,17 +101,17 @@
             "type" : "Microsoft.Authorization/roleAssignments",
             "apiVersion" : "2020-04-01-preview",
             //"name" : "[variables('contributorRoleAssignmentId')]",
-            "name" : "[variables('ownerRoleAssignmentId')]", // Using onwer role name
+            "name" : "[variables('ownerRoleAssignmentId')]", // Using owner role name
             "dependsOn" : [
                 "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('vaIdentityName'))]"
             ],
             "properties" : {
                 //"roleDefinitionId" : "[variables('contributorRoleDefinitionId')]",
-                "roleDefinitionId" : "[variables('ownerRoleDefinitionId')]", // Using owner role definition id to have ability to create AMS service principal 
-                "principalId" : "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('vaIdentityName')), '2018-11-30').principalId]",
+                "roleDefinitionId" : "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '8e3af657-a8ff-443c-a75c-2fe8c4bcb635')]", // "[variables('ownerRoleDefinitionId')]", // Using owner role definition id to have ability to create AMS service principal 
+                "principalId" : "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('vaIdentityName')), '2018-11-30').principalId]"
                 //"scope" : "[resourceGroup().id]",
-                "scope" : "[subscription().id]", // Set this at subscription scope to make AMS service prinicipal CLI commands work
-                "principalType" : "ServicePrincipal"
+                //"scope" : "[subscription().id]", // Set this at subscription scope to make AMS service prinicipal CLI commands work
+                //"principalType" : "ServicePrincipal"
             }
         },
 
