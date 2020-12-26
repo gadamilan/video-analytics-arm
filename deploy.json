@@ -77,8 +77,7 @@
         "vmSize" : "Standard_DS3_v2",
         "vmAdminUserName" : "lvaadmin",
         "vmAdminPassword" : "adminPa$$w0rd",
-        "edgeDeviceRegistrationScript" : "[concat('edgeDeviceRegistration-', uniquestring(resourceGroup().id))]",
-        "utcValue" : "[utcNow()]"
+        "edgeDeviceRegistrationScript" : "[concat('edgeDeviceRegistration-', uniquestring(resourceGroup().id))]"        
     },
     "resources": [
         {
@@ -230,7 +229,7 @@
             },
             
             "properties" : {
-                "forceUpdateTag" : "[variables('utcValue')]",
+                "forceUpdateTag" : "[parameters('utcValue')]",
                 "azCliVersion" : "2.16.0",
                 "storageAccountSettings" : {
                     "storageAccountName" : "[variables('storageAccountName')]",
@@ -239,16 +238,16 @@
                 "primaryScriptUri" : "[concat(variables('baseUri'), 'edge-device-setup.sh')]",                                
                 "environmentVariables" : [
                     {
+                        "name" : "IOTHUB_NAME",
+                        "value" : "[variables('iotHubName')]"
+                    },                    
+                    {
                         "name" : "DEVICE_RESOURCE_GROUP",
                         "value" : "[resourceGroup().name]"
                     },
                     {
                         "name" : "DEVICE_NAME",
                         "value" : "[variables('edgeDeviceName')]"
-                    },
-                    {
-                        "name" : "IOTHUB_NAME",
-                        "value" : "[variables('iotHubName')]"
                     },
                     {
                         "name" : "DEVICE_USERNAME",
