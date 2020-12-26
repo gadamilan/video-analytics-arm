@@ -2,8 +2,6 @@
 
 # This script creates a new Edge Device in given IoT Hub and connects it to a Existing VM with IoT Edge runtime installed on it.
 
-printenv
-
 echo "Logging in with Managed Identity"
 az login --identity --output "none"
 
@@ -41,6 +39,7 @@ if [ $? -ne 0 ]; then
     --size $DEVICE_SIZE \
     --output none
 
+    echo "VM deployment complete"
 else
     echo -e "A VM named $DEVICE_NAME was found in ${DEVICE_RESOURCE_GROUP}"
 fi
