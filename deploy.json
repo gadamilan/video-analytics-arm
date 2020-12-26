@@ -65,19 +65,26 @@
     "functions": [],
     "variables": {
         "baseUri" : "https://raw.githubusercontent.com/gadamilan/video-analytics-arm/main/",
+
         "contributorRoleDefinitionId": "[concat(resourceGroup().id, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",        
         "bootstrapRoleAssignmentId": "[guid(concat(resourceGroup().id, 'contributor'))]",
         "vaIdentityName" : "[concat('vaIdentity-', uniqueString(resourceGroup().id))]",
+        
         "storageAccountName": "[concat('vastore',uniqueString(resourceGroup().id))]",
+        
         "amsAccountName" : "[concat('vaams', uniqueString(resourceGroup().id))]",
+
         "iotHubResourceGroup" : "[if(equals(parameters('useExistingEdgeDevice'), 'Yes'), parameters('existingIotHubResourceGroup'), resourceGroup().name)]",
         "iotHubName": "[if(equals(parameters('useExistingEdgeDevice'), 'Yes'), parameters('existingIotHubName'), concat('va-iothub-', uniqueString(resourceGroup().id)))]",
-        "edgeDeviceName" : "[if(equals(parameters('useExistingEdgeDevice'), 'Yes'), parameters('existingEdgeDeviceName'), concat('va-edge-device-', uniqueString(resourceGroup().id)))]",
-        //"vmCustomData" : "[concat('#include\n', variables('baseUri'), 'vm-custom-data.yml')]",
+
+        "edgeDeviceName" : "[if(equals(parameters('useExistingEdgeDevice'), 'Yes'), parameters('existingEdgeDeviceName'), concat('va-edge-device-', uniqueString(resourceGroup().id)))]",        
         "vmSize" : "Standard_DS3_v2",
         "vmAdminUserName" : "lvaadmin",
         "vmAdminPassword" : "admin-Passw0rd",
-        "edgeDeviceRegistrationScript" : "[concat('edgeDeviceRegistration-', uniquestring(resourceGroup().id))]"        
+        "cloudInitUrl" : "[concat(variables('baseUri'), 'vm-custom-data.yml')]",
+        "edgeDeviceRegistrationScript" : "[concat('edgeDeviceRegistration-', uniquestring(resourceGroup().id))]",
+
+        "vaDeploymentManifestUrl" : "[concat('baseUri', 'va-deployment-manifest-template.json')]"
     },
     "resources": [
         {
@@ -167,56 +174,13 @@
                 }
             }            
         },       
-        /*          
-        {
-            "condition" : "[equals(parameters('useExistingEdgeDevice'), 'No')]",
-            "name" : "edgeDeviceDeployment",
-            "type" : "Microsoft.Resources/deployments",
-            "apiVersion" : "2019-10-01",
-            "resourceGroup" : "[resourceGroup().name]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
-            ],        
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[concat(variables('baseUri'), 'device-deploy.json')]",                    
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "tags" : { 
-                        "value" : "[parameters('resourceTags')]"
-                    },
-                    "storageUri" : {
-                        "value" : "[reference(resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))).primaryEndpoints.blob]"
-                    },
-                    "vmName" : {
-                        "value" : "[variables('edgeDeviceName')]"
-                    },
-                    "vmSize" : {
-                        "value" : "[variables('vmSize')]"
-                    },
-                    "vmAdminUserName" : {
-                        "value" : "[variables('vmAdminUserName')]"
-                    },
-                    "vmAdminPassword" : {
-                        "value" : "[variables('vmAdminPassword')]"
-                    },
-                    "vmCustomData" : {
-                        "value" : "[variables('vmCustomData')]"
-                    }
-                }
-            }
-        },
-        */
         {
             "condition" : "[equals(parameters('useExistingEdgeDevice'), 'No')]",
             "type" : "Microsoft.Resources/deploymentScripts",
             "apiVersion" : "2020-10-01",
             "name" : "[variables('edgeDeviceRegistrationScript')]",
             "location" : "[resourceGroup().location]",
-            "dependsOn" : [                
-                //"[resourceId('Microsoft.Resources/deployments', 'edgeDeviceDeployment')]",
+            "dependsOn" : [                                
                 "[resourceId('Microsoft.Devices/IotHubs', variables('iotHubName'))]"
             ],
             "kind": "AzureCLI",
@@ -240,7 +204,15 @@
                     {
                         "name" : "IOTHUB_NAME",
                         "value" : "[variables('iotHubName')]"
-                    },                    
+                    },
+                    {
+                        "name" : "AMS_ACCOUNT_NAME",
+                        "value" : "[variables('amsAccountName')]"
+                    },              
+                    {
+                        "name" : "USE_EXISTING_DEVICE",
+                        "value" : "[parameters('useExistingEdgeDevice')]"
+                    },                          
                     {
                         "name" : "DEVICE_RESOURCE_GROUP",
                         "value" : "[resourceGroup().name]"
@@ -263,7 +235,11 @@
                     },
                     {
                         "name" : "CLOUD_INIT_URL",
-                        "value" : "[concat(variables('baseUri'), 'vm-custom-data.yml')]"
+                        "value" : "[(variables('cloudInitUrl'))]"
+                    },
+                    {
+                        "name" : "DEPLOYMENT_MANIFEST_URL",
+                        "value" : "[variables('vaDeploymentManifestUrl')]"
                     } 
                 ],
                 "cleanupPreference" : "OnSuccess",
