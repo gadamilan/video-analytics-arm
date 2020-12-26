@@ -323,7 +323,7 @@
                                     },                          
                                     {
                                         "name" : "DEVICE_RESOURCE_GROUP",
-                                        "value" : "[resourceGroup().name]"
+                                        "value" : "[parameters('resourceGroupName')]"
                                     },
                                     {
                                         "name" : "DEVICE_NAME",
