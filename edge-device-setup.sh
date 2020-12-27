@@ -67,10 +67,10 @@ fi
 
 # echo $AMS_CONNECTION
 
-AAD_TENANT_ID = "aad_tenant_id"
-AAD_SERVICE_PRINCIPAL_ID = "aad_service_principal_id"
-AAD_SERVICE_PRINCIPAL_SECRET = "aad_service_principal_secret"
-SUBSCRIPTION_ID = "subscription_id"
+AAD_TENANT_ID="aad_tenant_id"
+AAD_SERVICE_PRINCIPAL_ID="aad_service_principal_id"
+AAD_SERVICE_PRINCIPAL_SECRET="aad_service_principal_secret"
+SUBSCRIPTION_ID="subscription_id"
 
 # Capture config information
 # re="AadTenantId:\s([0-9a-z\-]*)"
