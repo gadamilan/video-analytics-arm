@@ -124,24 +124,40 @@
             }
             
         },
-/*
+
         {
-            "type" : "Microsoft.Authorization/roleAssignments",
-            "apiVersion" : "2020-04-01-preview",            
-            "name" : "[variables('ownerRoleAssignmentId')]", 
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "name": "VARoleAssignment",
+            "resourceGroup": "[parameters('resourceGroupName')]",
             "dependsOn" : [
                 "VAManagedIdentity"
             ],
-            "properties" : {                
-                //"roleDefinitionId" : "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '8e3af657-a8ff-443c-a75c-2fe8c4bcb635')]", 
-                "roleDefinitionId" : "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '8e3af657-a8ff-443c-a75c-2fe8c4bcb635')]",
-                "principalId" : "[reference(concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('resourceGroupName'),'/Microsoft.ManagedIdentity/userAssignedIdentities/', variables('vaIdentityName')), '2018-11-30').principalId]",
-                //"principalId" : "[reference(subscriptionResourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('vaIdentityName')), '2018-11-30').principalId]",
-                "scope" : "[subscription().id]",
-                "principalType": "ServicePrincipal"
+            
+            "properties" : {     
+                "mode" : "Incremental",
+                "template" : {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {},
+                    "variables": {},
+                    "resources" : [
+                        {
+                            "type" : "Microsoft.Authorization/roleAssignments",
+                            "apiVersion" : "2020-04-01-preview",            
+                            "name" : "[variables('ownerRoleAssignmentId')]",                             
+                            "roleDefinitionId" : "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '8e3af657-a8ff-443c-a75c-2fe8c4bcb635')]", 
+                            //"roleDefinitionId" : "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '8e3af657-a8ff-443c-a75c-2fe8c4bcb635')]",
+                            //"principalId" : "[reference(concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('resourceGroupName'),'/Microsoft.ManagedIdentity/userAssignedIdentities/', variables('vaIdentityName')), '2018-11-30').principalId]",
+                            "principalId" : "[reference(subscriptionResourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('vaIdentityName')), '2018-11-30').principalId]",
+                            "scope" : "[subscription().id]",
+                            "principalType": "ServicePrincipal"                            
+                        }
+                    ]
+                }           
             }
         },
-*/
+
         {
             "name": "storageDeployment",
             "type": "Microsoft.Resources/deployments",
