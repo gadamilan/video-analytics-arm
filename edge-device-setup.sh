@@ -55,29 +55,35 @@ fi
 
 ######################################################################################################################
 # Get AMS account information to use in deployment manifest
-echo "Setting up AMS service principal..."
-SPN="$AMS_ACCOUNT_NAME-access-sp" # this is the default naming convention used by `az ams account sp`
 
-if test -z "$(az ad sp list --display-name $SPN --query="[].displayName" -o tsv)"; then
-    AMS_CONNECTION=$(az ams account sp create -o yaml --resource-group $DEVICE_RESOURCE_GROUP --account-name $AMS_ACCOUNT_NAME)
-else
-    AMS_CONNECTION=$(az ams account sp reset-credentials -o yaml --resource-group $DEVICE_RESOURCE_GROUP --account-name $AMS_ACCOUNT_NAME)
-fi
+# echo "Setting up AMS service principal..."
+# SPN="$AMS_ACCOUNT_NAME-access-sp" # this is the default naming convention used by `az ams account sp`
 
-echo $AMS_CONNECTION
+# if test -z "$(az ad sp list --display-name $SPN --query="[].displayName" -o tsv)"; then
+#     AMS_CONNECTION=$(az ams account sp create -o yaml --resource-group $DEVICE_RESOURCE_GROUP --account-name $AMS_ACCOUNT_NAME)
+# else
+#     AMS_CONNECTION=$(az ams account sp reset-credentials -o yaml --resource-group $DEVICE_RESOURCE_GROUP --account-name $AMS_ACCOUNT_NAME)
+# fi
+
+# echo $AMS_CONNECTION
+
+AAD_TENANT_ID = "aad_tenant_id"
+AAD_SERVICE_PRINCIPAL_ID = "aad_service_principal_id"
+AAD_SERVICE_PRINCIPAL_SECRET = "aad_service_principal_secret"
+SUBSCRIPTION_ID = "subscription_id"
 
 # Capture config information
-re="AadTenantId:\s([0-9a-z\-]*)"
-AAD_TENANT_ID=$([[ "$AMS_CONNECTION" =~ $re ]] && echo ${BASH_REMATCH[1]})
+# re="AadTenantId:\s([0-9a-z\-]*)"
+# AAD_TENANT_ID=$([[ "$AMS_CONNECTION" =~ $re ]] && echo ${BASH_REMATCH[1]})
 
-re="AadClientId:\s([0-9a-z\-]*)"
-AAD_SERVICE_PRINCIPAL_ID=$([[ "$AMS_CONNECTION" =~ $re ]] && echo ${BASH_REMATCH[1]})
+# re="AadClientId:\s([0-9a-z\-]*)"
+# AAD_SERVICE_PRINCIPAL_ID=$([[ "$AMS_CONNECTION" =~ $re ]] && echo ${BASH_REMATCH[1]})
 
-re="AadSecret:\s([0-9a-z\-]*)"
-AAD_SERVICE_PRINCIPAL_SECRET=$([[ "$AMS_CONNECTION" =~ $re ]] && echo ${BASH_REMATCH[1]})
+# re="AadSecret:\s([0-9a-z\-]*)"
+# AAD_SERVICE_PRINCIPAL_SECRET=$([[ "$AMS_CONNECTION" =~ $re ]] && echo ${BASH_REMATCH[1]})
 
-re="SubscriptionId:\s([0-9a-z\-]*)"
-SUBSCRIPTION_ID=$([[ "$AMS_CONNECTION" =~ $re ]] && echo ${BASH_REMATCH[1]})
+# re="SubscriptionId:\s([0-9a-z\-]*)"
+# SUBSCRIPTION_ID=$([[ "$AMS_CONNECTION" =~ $re ]] && echo ${BASH_REMATCH[1]})
 
 # AMS account may have a standard streaming endpoint in stopped state. 
 # A Premium streaming endpoint is recommended when recording multiple days worth of video
