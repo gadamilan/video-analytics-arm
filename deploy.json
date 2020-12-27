@@ -200,7 +200,8 @@
                             "properties": {
                                 "storageAccounts": [
                                     {
-                                        "id" : "[subscriptionResourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",                                                     
+                                        "id" : "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('resourceGroupName'),'/Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
+//                                        "id" : "[subscriptionResourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",                                                     
                                         "type": "Primary"                                        
                                     }
                                 ]
