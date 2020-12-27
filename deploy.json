@@ -309,7 +309,7 @@
                                 
                                 "storageAccountSettings" : {
                                     "storageAccountName" : "[variables('storageAccountName')]",
-                                    "storageAccountKey" : "[listKeys(subscriptionResourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2019-06-01').keys[0].value]"
+                                    "storageAccountKey" : "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2019-06-01').keys[0].value]"
                                 },
                                 
                                 "primaryScriptUri" : "[concat(variables('baseUri'), 'edge-device-setup.sh')]",                                
