@@ -55,7 +55,7 @@
 
         "baseUri" : "https://raw.githubusercontent.com/gadamilan/video-analytics-arm/main/",
         
-        "ownerRoleAssignmentId" : "[guid(concat(subscription().id, 'owner'))]",
+        "ownerRoleAssignmentId" : "[guid(concat(subscription().id, parameters('resourceGroupName'), 'owner'))]",
 
         "resourceUniqueSuffix" : "[uniqueString(subscription().subscriptionId, parameters('resourceGroupName'))]",
         "vaIdentityName" : "[concat('vaIdentity-', variables('resourceUniqueSuffix'))]",
@@ -110,13 +110,50 @@
                 }
             }
             
+        },
+
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "name": "VARoleAssignment",
+            "resourceGroup": "[parameters('resourceGroupName')]",
+            "dependsOn" : [
+                "VAManagedIdentity"
+            ],
+            
+            "properties" : {     
+                "mode" : "Incremental",
+                "template" : {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {},
+                    "variables": {},
+                    "resources" : [
+                        {
+                            "type" : "Microsoft.Authorization/roleAssignments",
+                            "apiVersion" : "2020-04-01-preview",            
+                            "name" : "[variables('ownerRoleAssignmentId')]",                             
+                            "properties" : {
+                                "roleDefinitionId" : "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '8e3af657-a8ff-443c-a75c-2fe8c4bcb635')]",
+                                "principalId" : "[reference(concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('resourceGroupName'),'/Microsoft.ManagedIdentity/userAssignedIdentities/', variables('vaIdentityName')),'2018-11-30').principalId]",
+                                
+                                "scope" : "[subscription().id]",
+                                "principalType": "ServicePrincipal"                            
+                            }
+                        }
+                    ]
+                }           
+            }
         }
-
-
 
  
     ],
     "outputs": {
+
+        "identityPrincipalId" : {
+            "type" : "string",
+            "value" : "[reference(concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('resourceGroupName'),'/Microsoft.ManagedIdentity/userAssignedIdentities/', variables('vaIdentityName')),'2018-11-30').principalId]"
+        },
 
         "amsAccountName" : {
             "type" : "string",
@@ -133,6 +170,7 @@
         "edgeDeviceName" : {
             "type" : "string",
             "value" : "[variables('edgeDeviceName')]"
-        }                                
+        }          
+
     }
 }
