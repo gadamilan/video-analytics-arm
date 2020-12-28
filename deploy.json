@@ -114,7 +114,7 @@
 
         {
             "type" : "Microsoft.Authorization/roleAssignments",
-            "apiVersion" : "2015-07-01",
+            "apiVersion" : "2020-04-01-preview",
             "name" : "[guid(concat(resourceGroup().id, 'contributor', 'iothub'))]",
             "dependsOn" : [
                 "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('vaIdentityName'))]"
