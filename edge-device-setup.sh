@@ -14,7 +14,10 @@ echo -e "Deployment manifest url $DEPLOYMENT_MANIFEST_URL ..."
 # Configure IoT Hub for an edge device
 echo "Registering edge device with IoT Hub..."
 if test -z "$(az iot hub device-identity list -n $IOTHUB_NAME | grep "deviceId" | grep $DEVICE_NAME)"; then
+    echo "Creating device identity..."
     az iot hub device-identity create --hub-name $IOTHUB_NAME --device-id $DEVICE_NAME --edge-enabled -o none    
+else
+    echo "Device identity already exists..."
 fi
 
 # Get the connection string for the edge device
@@ -28,7 +31,7 @@ if [ $USE_EXISTING_DEVICE=="No" ]; then
     # Deploy the IoT Edge runtime on the VM
     az vm show -n $DEVICE_NAME -g $DEVICE_RESOURCE_GROUP &> /dev/null
     if [ $? -ne 0 ]; then
-        echo -e "Deploying a VM that will act as your IoT Edge device for using the samples..."
+        echo -e "Deploying a VM that will act as the IoT Edge device the samples..."
         CLOUD_INIT_FILE='./cloud-init.yml'
         curl -s $CLOUD_INIT_URL > $CLOUD_INIT_FILE
 
@@ -117,9 +120,6 @@ sed -i "s/\$AAD_SERVICE_PRINCIPAL_ID/$AAD_SERVICE_PRINCIPAL_ID/" $DEPLOYMENT_MAN
 sed -i "s/\$AAD_SERVICE_PRINCIPAL_SECRET/$AAD_SERVICE_PRINCIPAL_SECRET/" $DEPLOYMENT_MANIFEST_FILE
 sed -i "s/\$OUTPUT_VIDEO_FOLDER_ON_DEVICE/\/var\/media/" $DEPLOYMENT_MANIFEST_FILE
 sed -i "s/\$APPDATA_FOLDER_ON_DEVICE/${APPDATA_FOLDER_ON_DEVICE//\//\\/}/" $DEPLOYMENT_MANIFEST_FILE
-
-content=$(cat ${DEPLOYMENT_MANIFEST_FILE})
-echo "$content"
 
 ######################################################################################################################
 # Deploy the modules on the edge device

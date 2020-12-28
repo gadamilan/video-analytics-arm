@@ -85,7 +85,7 @@
         "cloudInitUrl" : "[concat(variables('baseUri'), 'vm-custom-data.yml')]",
         "edgeDeviceRegistrationScript" : "[concat('edgeDeviceRegistration-', uniquestring(resourceGroup().id))]",
 
-        "vaDeploymentManifestUrl" : "[concat('baseUri', 'va-deployment-manifest-template.json')]"
+        "vaDeploymentManifestUrl" : "[concat(variables('baseUri'), 'va-deployment-manifest-template.json')]"
     },
     "resources": [
         {
@@ -99,6 +99,7 @@
             "type" : "Microsoft.Authorization/roleAssignments",
             "apiVersion" : "2020-04-01-preview",
             "name" : "[variables('contributorRoleAssignmentId')]",
+            
             
             "dependsOn" : [
                 "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('vaIdentityName'))]"
@@ -144,7 +145,7 @@
             },
             "tags": "[parameters('resourceTags')]"
         },      
-        
+
         {
             "condition" : "[equals(parameters('useExistingEdgeDevice'), 'No')]",
             "name" : "[variables('iotHubName')]",
@@ -201,7 +202,7 @@
             
             "properties" : {
                 "forceUpdateTag" : "[parameters('utcValue')]",
-                "azCliVersion" : "2.16.0",
+                "azCliVersion" : "2.15.1",
                 "storageAccountSettings" : {
                     "storageAccountName" : "[variables('storageAccountName')]",
                     "storageAccountKey" : "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2019-06-01').keys[0].value]"
