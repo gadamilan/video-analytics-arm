@@ -102,6 +102,7 @@ echo "Setting up deployment manfiest file..."
 DEPLOYMENT_MANIFEST_FILE='./va-deployment-manifest.json'
 APPDATA_FOLDER_ON_DEVICE="/var/lib/azuremediaservices"
 
+echo "Deployment manifest url $DEPLOYMENT_MANIFEST_URL ..."
 curl -s $DEPLOYMENT_MANIFEST_URL > $DEPLOYMENT_MANIFEST_FILE
 
 sed -i "s/\$INPUT_VIDEO_FOLDER_ON_DEVICE/\/home\/$DEVICE_USERNAME\/samples\/input/" $DEPLOYMENT_MANIFEST_FILE
