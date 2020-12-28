@@ -65,18 +65,18 @@
     "functions": [],
     "variables": {
         "baseUri" : "https://raw.githubusercontent.com/gadamilan/video-analytics-arm/main/",
+       
+        "vaIdentityName" : "[concat('vaIdentity-', uniqueString(resourceGroup().id))]",
 
         "contributorRoleDefinitionId": "[concat(resourceGroup().id, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",                
-        "contributorRoleAssignmentId": "[guid(concat(resourceGroup().id, 'contributor'))]",
-        
-        "vaIdentityName" : "[concat('vaIdentity-', uniqueString(resourceGroup().id))]",
+        "contributorRoleAssignmentId": "[guid(concat(resourceGroup().id, 'contributor'))]",        
         
         "storageAccountName": "[concat('vastore',uniqueString(resourceGroup().id))]",
         
         "amsAccountName" : "[concat('vaams', uniqueString(resourceGroup().id))]",
 
         "iotHubResourceGroup" : "[if(equals(parameters('useExistingEdgeDevice'), 'Yes'), parameters('existingIotHubResourceGroup'), resourceGroup().name)]",
-        "iotHubName": "[if(equals(parameters('useExistingEdgeDevice'), 'Yes'), parameters('existingIotHubName'), concat('va-iothub-', uniqueString(resourceGroup().id)))]",
+        "iotHubName": "[if(equals(parameters('useExistingEdgeDevice'), 'Yes'), parameters('existingIotHubName'), concat('va-iothub-', uniqueString(resourceGroup().id)))]",                
 
         "edgeDeviceName" : "[if(equals(parameters('useExistingEdgeDevice'), 'Yes'), parameters('existingEdgeDeviceName'), concat('va-edge-device-', uniqueString(resourceGroup().id)))]",        
         "vmSize" : "Standard_DS3_v2",
@@ -108,6 +108,21 @@
                 "roleDefinitionId" : "[variables('contributorRoleDefinitionId')]",                
                 "principalId" : "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('vaIdentityName')), '2018-11-30').principalId]",
                 "scope" : "[resourceGroup().id]",                
+                "principalType" : "ServicePrincipal"
+            }
+        },
+
+        {
+            "type" : "Microsoft.Authorization/roleAssignments",
+            "apiVersion" : "2015-07-01",
+            "name" : "[guid(concat(resourceGroup().id, 'contributor', 'iothub'))]",
+            "dependsOn" : [
+                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('vaIdentityName'))]"
+            ],
+            "properties" : {
+                "roleDefinitionId" : "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('existingIotHubResourceGroup'), '/providers/Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+                "principalId" : "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('vaIdentityName')), '2018-11-30').principalId]",
+                "scope" : "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('existingIotHubResourceGroup'))]",
                 "principalType" : "ServicePrincipal"
             }
         },
@@ -182,14 +197,13 @@
             }            
         },       
 
-        {
-            "condition" : "[equals(parameters('useExistingEdgeDevice'), 'No')]",
+        {                        
             "type" : "Microsoft.Resources/deploymentScripts",
             "apiVersion" : "2020-10-01",
             "name" : "[variables('edgeDeviceRegistrationScript')]",
             "location" : "[resourceGroup().location]",
             "dependsOn" : [                                
-                "[resourceId('Microsoft.Devices/IotHubs', variables('iotHubName'))]"
+                "[variables('iotHubName')]"
             ],
             "kind": "AzureCLI",
             "identity" : {
