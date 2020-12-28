@@ -115,7 +115,7 @@ sed -i "s/\$OUTPUT_VIDEO_FOLDER_ON_DEVICE/\/var\/media/" $DEPLOYMENT_MANIFEST_FI
 sed -i "s/\$APPDATA_FOLDER_ON_DEVICE/${APPDATA_FOLDER_ON_DEVICE//\//\\/}/" $DEPLOYMENT_MANIFEST_FILE
 
 content=$(cat ${DEPLOYMENT_MANIFEST_FILE})
-echo $content
+echo "$content"
 
 ######################################################################################################################
 # Deploy the modules on the edge device
