@@ -1,11 +1,14 @@
 #!/bin/bash
 
 ######################################################################################################################
-echo "Logging in with Managed Identity..."
+echo "Logging in with Managed Identity...."
 az login --identity --output "none"
 
 echo "Installing Azure Iot extension..."
 az extension add --name azure-iot
+
+echo -e "Deployment manifest url $DEPLOYMENT_MANIFEST_URL ..."
+
 
 ######################################################################################################################
 # Configure IoT Hub for an edge device
