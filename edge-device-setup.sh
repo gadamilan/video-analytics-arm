@@ -7,9 +7,6 @@ az login --identity --output "none"
 echo "Installing Azure Iot extension..."
 az extension add --name azure-iot
 
-echo -e "Deployment manifest url $DEPLOYMENT_MANIFEST_URL ..."
-
-
 ######################################################################################################################
 # Configure IoT Hub for an edge device
 echo "Registering edge device with IoT Hub..."
@@ -108,7 +105,6 @@ echo "Setting up deployment manfiest file..."
 DEPLOYMENT_MANIFEST_FILE='./va-deployment-manifest.json'
 APPDATA_FOLDER_ON_DEVICE="/var/lib/azuremediaservices"
 
-echo "Deployment manifest url $DEPLOYMENT_MANIFEST_URL ..."
 curl -s $DEPLOYMENT_MANIFEST_URL > $DEPLOYMENT_MANIFEST_FILE
 
 sed -i "s/\$INPUT_VIDEO_FOLDER_ON_DEVICE/\/home\/$DEVICE_USERNAME\/samples\/input/" $DEPLOYMENT_MANIFEST_FILE
