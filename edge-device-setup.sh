@@ -104,8 +104,6 @@ APPDATA_FOLDER_ON_DEVICE="/var/lib/azuremediaservices"
 
 curl -s $DEPLOYMENT_MANIFEST_URL > $DEPLOYMENT_MANIFEST_FILE
 
-cat $DEPLOYMENT_MANIFEST_FILE
-
 sed -i "s/\$INPUT_VIDEO_FOLDER_ON_DEVICE/\/home\/$DEVICE_USERNAME\/samples\/input/" $DEPLOYMENT_MANIFEST_FILE
 sed -i "s/\$SUBSCRIPTION_ID/$SUBSCRIPTION_ID/" $DEPLOYMENT_MANIFEST_FILE
 sed -i "s/\$RESOURCE_GROUP/$DEVICE_RESOURCE_GROUP/" $DEPLOYMENT_MANIFEST_FILE
@@ -116,7 +114,8 @@ sed -i "s/\$AAD_SERVICE_PRINCIPAL_SECRET/$AAD_SERVICE_PRINCIPAL_SECRET/" $DEPLOY
 sed -i "s/\$OUTPUT_VIDEO_FOLDER_ON_DEVICE/\/var\/media/" $DEPLOYMENT_MANIFEST_FILE
 sed -i "s/\$APPDATA_FOLDER_ON_DEVICE/${APPDATA_FOLDER_ON_DEVICE//\//\\/}/" $DEPLOYMENT_MANIFEST_FILE
 
-cat $DEPLOYMENT_MANIFEST_FILE
+content=$(cat ${DEPLOYMENT_MANIFEST_FILE})
+echo $content
 
 ######################################################################################################################
 # Deploy the modules on the edge device
