@@ -12,55 +12,12 @@
                 "description" : "Used to tag all resources created by this template"
             }
         },
-        "useExistingEdgeDevice" : {
-            "type" : "string",
-            "allowedValues" : [
-                "Yes",
-                "No"
-            ],
-            "defaultValue" : "No",
-            "metadata" : {
-                "description" : "Select 'Yes' if you would like to use an existing edge device registered with an existing IoT Hub. If you select 'No', an IoT Hub will be created along with a virtual edge device"
-            }
-        },        
-        "existingIotHubResourceGroup" : {
-            "type" : "string",
-            "metadata" : {
-                "description" : "Provide name of resource group of existing IoT Hub you want to use"
-            },
-            "defaultValue" : ""
-        },
-        "existingIotHubName" : {
-            "type" : "string",
-            "metadata" : {
-                "description" : "Provide name of existing IoT Hub you want to use"
-            },
-            "defaultValue" : ""
-        },
-        "existingEdgeDeviceName" : {
-            "type": "string",
-            "metadata": {
-                "description" : "Provide name of existing edge device you want to use"
-            },
-            "defaultValue" : ""
-        },
+ 
         "utcValue": {
             "type": "string",
             "defaultValue": "[utcNow()]"
         }            
-        /*,
-        "existingEdgeDeviceArchitecture" : {
-            "type" : "string",
-            "allowedValues" : [
-                "X86",
-                "ARM"
-            ],
-            "defaultValue" : "X86",
-            "metadata" : {
-                "description" : "Select your existing edge device's architecture"
-            }
-        }           
-        */ 
+
     },
     "functions": [],
     "variables": {
@@ -74,11 +31,10 @@
         "storageAccountName": "[concat('vastore',uniqueString(resourceGroup().id))]",
         
         "amsAccountName" : "[concat('vaams', uniqueString(resourceGroup().id))]",
+        
+        "iotHubName": "[concat('va-iothub-', uniqueString(resourceGroup().id))]",                
 
-        "iotHubResourceGroup" : "[if(equals(parameters('useExistingEdgeDevice'), 'Yes'), parameters('existingIotHubResourceGroup'), resourceGroup().name)]",
-        "iotHubName": "[if(equals(parameters('useExistingEdgeDevice'), 'Yes'), parameters('existingIotHubName'), concat('va-iothub-', uniqueString(resourceGroup().id)))]",                
-
-        "edgeDeviceName" : "[if(equals(parameters('useExistingEdgeDevice'), 'Yes'), parameters('existingEdgeDeviceName'), concat('va-edge-device-', uniqueString(resourceGroup().id)))]",        
+        "edgeDeviceName" : "[concat('va-edge-device-', uniqueString(resourceGroup().id))]",        
         "vmSize" : "Standard_DS3_v2",
         "vmAdminUserName" : "lvaadmin",
         "vmAdminPassword" : "admin-Passw0rd",
@@ -98,9 +54,7 @@
         {
             "type" : "Microsoft.Authorization/roleAssignments",
             "apiVersion" : "2020-04-01-preview",
-            "name" : "[variables('contributorRoleAssignmentId')]",
-            
-            
+            "name" : "[variables('contributorRoleAssignmentId')]",                        
             "dependsOn" : [
                 "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('vaIdentityName'))]"
             ],
@@ -108,21 +62,6 @@
                 "roleDefinitionId" : "[variables('contributorRoleDefinitionId')]",                
                 "principalId" : "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('vaIdentityName')), '2018-11-30').principalId]",
                 "scope" : "[resourceGroup().id]",                
-                "principalType" : "ServicePrincipal"
-            }
-        },
-
-        {
-            "type" : "Microsoft.Authorization/roleAssignments",
-            "apiVersion" : "2020-04-01-preview",
-            "name" : "[guid(concat(resourceGroup().id, 'contributor', 'iothub'))]",
-            "dependsOn" : [
-                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('vaIdentityName'))]"
-            ],
-            "properties" : {
-                "roleDefinitionId" : "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('existingIotHubResourceGroup'), '/providers/Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
-                "principalId" : "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('vaIdentityName')), '2018-11-30').principalId]",
-                "scope" : "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('existingIotHubResourceGroup'))]",
                 "principalType" : "ServicePrincipal"
             }
         },
@@ -161,8 +100,7 @@
             "tags": "[parameters('resourceTags')]"
         },      
 
-        {
-            "condition" : "[equals(parameters('useExistingEdgeDevice'), 'No')]",
+        {            
             "name" : "[variables('iotHubName')]",
             "type": "Microsoft.Devices/IotHubs",
             "apiVersion" : "2020-06-15",
@@ -203,7 +141,7 @@
             "name" : "[variables('edgeDeviceRegistrationScript')]",
             "location" : "[resourceGroup().location]",
             "dependsOn" : [                                
-                "[variables('iotHubName')]"
+                "[resourceId('Microsoft.Devices/IotHubs', variables('iotHubName'))]"
             ],
             "kind": "AzureCLI",
             "identity" : {
@@ -275,10 +213,6 @@
         "amsAccountName" : {
             "type" : "string",
             "value" : "[variables('amsAccountName')]"
-        },
-        "iotHubResourceGroup" : {
-            "type" : "string",
-            "value" : "[variables('iotHubResourceGroup')]"
         },
         "iotHubName" : {
             "type" : "string",
