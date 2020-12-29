@@ -23,7 +23,7 @@ DEVICE_CONNECTION_STRING=$(az iot hub device-identity connection-string show --d
 ######################################################################################################################
 # Check if there is a need to deploy a virtual edge device
 
-if [ $USE_EXISTING_DEVICE=="No" ]; then
+if [ "$USE_EXISTING_DEVICE" = "No" ]; then
 
     # Deploy the IoT Edge runtime on the VM
     az vm show -n $DEVICE_NAME -g $DEVICE_RESOURCE_GROUP &> /dev/null

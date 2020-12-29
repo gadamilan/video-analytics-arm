@@ -53,9 +53,7 @@
     "variables": {
          "location": "[deployment().location]",
 
-        "baseUri" : "https://raw.githubusercontent.com/gadamilan/video-analytics-arm/main/",
-        
-        "ownerRoleAssignmentId" : "[guid(concat(subscription().id, parameters('resourceGroupName'), 'owner'))]",
+        "baseUri" : "https://raw.githubusercontent.com/gadamilan/video-analytics-arm/main/",        
 
         "resourceUniqueSuffix" : "[uniqueString(subscription().subscriptionId, parameters('resourceGroupName'))]",
         "vaIdentityName" : "[concat('vaIdentity-', variables('resourceUniqueSuffix'))]",
@@ -74,7 +72,7 @@
         "cloudInitUrl" : "[concat(variables('baseUri'), 'vm-custom-data.yml')]",
         "edgeDeviceRegistrationScript" : "[concat('edgeDeviceRegistration-', variables('resourceUniqueSuffix'))]",
 
-        "vaDeploymentManifestUrl" : "[concat('baseUri', 'va-deployment-manifest-template.json')]"
+        "vaDeploymentManifestUrl" : "[concat(variables('baseUri'), 'va-deployment-manifest-template.json')]"
     },
     "resources": [
         {
@@ -115,33 +113,95 @@
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2020-06-01",
-            "name": "VARoleAssignment",
-            "location" : "[variables('location')]",
+            "name": "VARoleAssignment",            
             "dependsOn" : [
                 "VAManagedIdentity"
             ],
-            
+            "resourceGroup" : "[parameters('resourceGroupName')]",
             "properties" : {     
                 "mode" : "Incremental",
+                "expressionEvaluationOptions" : {
+                    "scope" : "inner"
+                },
+                "parameters" : {
+                    "managedIdentityName" : {
+                        "value" : "[variables('vaIdentityName')]"
+                    }
+                },
                 "template" : {
                     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
                     "contentVersion": "1.0.0.0",
-                    "parameters": {},
+                    "parameters": {
+                        "managedIdentityName": {
+                            "type": "String"
+                        }                        
+                    },
                     "variables": {},
                     "resources" : [
                         {
                             "type" : "Microsoft.Authorization/roleAssignments",
                             "apiVersion" : "2020-04-01-preview",            
-                            "name" : "[variables('ownerRoleAssignmentId')]",       
-                            "properties" : {                      
-                                "roleDefinitionId" : "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '8e3af657-a8ff-443c-a75c-2fe8c4bcb635')]", 
-                                "principalId" : "[reference(concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('resourceGroupName'),'/providers/Microsoft.ManagedIdentity/userAssignedIdentities/', variables('vaIdentityName')),'2018-11-30').principalId]",
-                                "scope" : "[subscription().id]",
+                            "name" : "[guid(concat(resourceGroup().id, 'contributor'))]",
+                            "properties" : {                                                      
+                                "roleDefinitionId": "[concat(resourceGroup().id, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+                                "principalId" : "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('managedIdentityName')), '2018-11-30').principalId]",
+                                "scope" : "[resourceGroup().id]",
                                 "principalType": "ServicePrincipal"                            
                             }
                         }
                     ]
                 }           
+            }
+        },
+
+        {
+            "condition" : "[equals(parameters('useExistingEdgeDevice'), 'Yes')]",
+            "type" : "Microsoft.Resources/deployments",
+            "apiVersion" : "2020-06-01",
+            "name" : "VAIoTRoleAssignment",
+            "dependsOn" : [
+                "VAManagedIdentity"
+            ],
+            "resourceGroup" : "[parameters('existingIotHubResourceGroup')]",
+            "properties" : {
+                "mode" : "Incremental",
+                "expressionEvaluationOptions" : {
+                    "scope" : "Inner"
+                },
+                "parameters" : {
+                    "managedIdentityName" : {
+                        "value" : "[variables('vaIdentityName')]"
+                    },
+                    "defaultResourceGroup" : {
+                        "value" : "[parameters('resourceGroupName')]"
+                    }
+                },
+                "template" : {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "managedIdentityName" : {
+                            "type" : "string"
+                        },
+                        "defaultResourceGroup" : {
+                            "type" : "string"
+                        }
+                    },
+                    "variables": {},
+                    "resources" : [
+                        {
+                            "type" : "Microsoft.Authorization/roleAssignments",
+                            "apiVersion" : "2020-04-01-preview",            
+                            "name": "[guid(concat(resourceGroup().id, 'contributor', 'IoTHub'))]",   
+                            "properties" : {                      
+                                "roleDefinitionId": "[concat('/subscriptions/' , subscription().subscriptionId , '/resourceGroups/', resourceGroup().name,  '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+                                "principalId": "[reference(resourceId(parameters('defaultResourceGroup'),'Microsoft.ManagedIdentity/userAssignedIdentities', parameters('managedIdentityName')), '2018-11-30').principalId]",
+                                "scope": "[resourceGroup().id]",
+                                "principalType": "ServicePrincipal"                   
+                            }
+                        }
+                    ]
+                }                
             }
         },
 
@@ -306,7 +366,7 @@
                             },
                             "properties" : {
                                 "forceUpdateTag" : "[parameters('utcValue')]",
-                                "azCliVersion" : "2.16.0",
+                                "azCliVersion" : "2.15.1",
                                 
                                 "storageAccountSettings" : {
                                     "storageAccountName" : "[variables('storageAccountName')]",
@@ -373,13 +433,6 @@
  
     ],
     "outputs": {
-
-        "identityPrincipalId" : {
-            "type" : "string",
-            "value" : "[reference(concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('resourceGroupName'),'/providers/Microsoft.ManagedIdentity/userAssignedIdentities/', variables('vaIdentityName')),'2018-11-30').principalId]"            
-        },
-
-
 
         "amsAccountName" : {
             "type" : "string",
